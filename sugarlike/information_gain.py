@@ -146,9 +146,14 @@ class mutual_information():
 
 # Usage:
 
-##make_mtxfile('udhr')
-matrix, labels, features = read_mtxfile('udhr.mtx')
-mi = mutual_information(matrix, labels, features)
+try:
+    mi = pickle.load(open('udhr.mtx.pk', 'rb'))
+except IOError:
+    ##make_mtxfile('udhr')
+    matrix, labels, features = read_mtxfile('udhr.mtx')
+    mi = mutual_information(matrix, labels, features)
+    pickle.dump(mi, open('udhr.mtx.pk', 'wb'))
+
 
 random_label = random.choice(labels)
 random_feature = random.choice(features)
