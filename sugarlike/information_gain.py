@@ -66,7 +66,7 @@ def read_mtxfile(mtxfile):
         matrix = csc_matrix(data)
         ##print sys.getsizeof(matrix)
     
-    return matrix, all_labels, all_features
+    return matrix, sorted(all_labels), sorted(all_features)
 
 def sum_of(matrix, option, num):
     """
@@ -118,6 +118,13 @@ class mutual_information():
         for i,j,v in izip(_coo.row, _coo.col, _coo.data):
             yield self.all_labels[i], self.all_features[j], v
 
+    def iterate_nonzeros(selfs):
+        """ Iterating through non-zero cells in the matrix. """
+        rows,cols = self.matrix.nonzero()
+        for row_num,col_num in zip(rows,cols):
+            _label = self.labels[row_num-1]
+            _feat = self.features[col_num-1]
+            yield _label, _feat, self.matrix[row_num,col_num]
     
     def update_probabilities(self):
         """ Updates probabilities. """
@@ -143,6 +150,7 @@ class mutual_information():
             return self.plabel_feature[label][feature]
         except KeyError:
             return 0
+
 
 # Usage:
 
