@@ -80,11 +80,13 @@ def sum_of(matrix, option, num):
     return int(matrix.sum(axis=options[option])[num])
 
 def try_except(myFunction, *params):
-  """ Generic try-except to catch ZeroDivisionError, ValueError """
-  try:
-    return myFunction(*params)
-  except (ZeroDivisionError, ValueError) as e:
-    return 0
+    """ Generic try-except to catch ZeroDivisionError, ValueError """
+    try:
+        return myFunction(*params)
+    except ZeroDivisionError as e:
+        return np.NAN
+    except ValueError as e:
+        return 0
 
 class mutual_information():
     def __init__(self, matrix, all_labels, all_features):
@@ -96,7 +98,7 @@ class mutual_information():
         
         self.plabel = {}
         self.pfeature = {}
-        self.plabel_feature = defaultdict(Counter)
+        self.plabel_feature = {}
         
         self.update_probabilities()
             
@@ -120,8 +122,8 @@ class mutual_information():
     def update_probabilities(self):
         """ Updates probabilities. """
         for label, feat, count in self.iterate_cells():
-            print label, feat, int(count)
-            self.plabel_feature[label][feat] = \
+            ##print label, feat, int(count)
+            self.plabel_feature.setdefault(label,{})[feat] = \
             try_except(math.log, int(count)/float(self.sum_matrix))
         for label, row in self.iterate_row():
             self.plabel[label] = \
