@@ -23,7 +23,7 @@ def sent2ngrams(text, n=3):
         return text.split()
     return list(chain(*[word2ngrams(i,n) for i in text.lower().split()]))
 
-def datasource2matrix(datasource='udhr', n=3, option="dok_matrix"):
+def datasource2matrix(datasource='udhr', n=3, option="csc_matrix"):
     outmatrixfile = datasource+"-"+str(n)+'grams.mtx'
     outlabelfile = datasource+"-"+str(n)+'grams.label'
     outfeatfile = datasource+"-"+str(n)+'grams.feats'
@@ -53,7 +53,7 @@ def datasource2matrix(datasource='udhr', n=3, option="dok_matrix"):
     all_features = sorted(all_features)
     all_labels = sorted(all_labels)
     
-    if option == "dok_matrix":
+    if option == "dok_matrix": # it's slower.
         matrix = sp.sparse.dok_matrix((len(all_labels), len(all_features)))
         for i,label in enumerate(all_labels):
             for j,feat in enumerate(all_features):
