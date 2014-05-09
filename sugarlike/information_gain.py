@@ -1,7 +1,7 @@
 #!/usr/bin/env python -*- coding: utf-8 -*-
 
 import codecs, csv, sys, random, os
-import math
+import math, operator
 import cPickle as pickle
 from itertools import chain, islice, izip
 from collections import Counter,defaultdict
@@ -23,60 +23,56 @@ def sent2ngrams(text, n=3):
         return text.split()
     return list(chain(*[word2ngrams(i,n) for i in text.lower().split()]))
 
-def make_mtxfile(datasource='udhr', outfilename=None, n=3):
-    """ 
-    Extracts features from SeedLing corpus and outputs a tab-delimited file,
-    where rows represents the languages and columns represents the frequencies
-    of the features.
-    """
-    outfilename = datasource+"-"+str(n)+'grams.mtx' if None else outfilename
-    if os.path.exists(outfilename):
-        return
+def datasource2matrix(datasource='udhr', n=3, option="dok_matrix"):
+    outmatrixfile = datasource+"-"+str(n)+'grams.mtx'
+    outlabelfile = datasource+"-"+str(n)+'grams.label'
+    outfeatfile = datasource+"-"+str(n)+'grams.feats'
     
-    matrix = defaultdict(Counter)
+    if os.path.exists(outmatrixfile):
+        with open(outmatrixfile, 'rb') as fin:
+            matrix = pickle.load(fin)
+        
+        with open(outlabelfile, 'rb') as fin:
+            all_labels = pickle.load(fin)
+
+        with open(outfeatfile, 'rb') as fin:
+            all_features = pickle.load(fin)
+        
+        return matrix, all_labels, all_features
+    
+    _matrix = defaultdict(Counter)
     all_features = set()
     all_labels = set()
     # Accessing SeedLing corpus and extracting Ngrams. 
     for lang, sent in globals()[datasource].sents():
         features = sent2ngrams(sent, n=n)
-        matrix[lang].update(features)
+        _matrix[lang].update(features)
         all_labels.add(lang)
         all_features.update(features)
     
     all_features = sorted(all_features)
     all_labels = sorted(all_labels)
     
-    with open(outfilename, 'wb') as fout:
-        # Use the first two lines to save the labels and features.
-        fout.write("\t".join(all_labels)+"\n")
-        fout.write("\t".join(all_features)+"\n")
-        # Saves the counts of the features in a tab-delimited file.
-        for _label in all_labels:
-            line = "\t".join([str(matrix[_label][_feature]) \
-                     for _feature in all_features])
-            fout.write(line+"\n")
-
-def read_mtxfile(mtxfile, read_labels_features_only=False):
-    all_labels, all_features = [], []
-    # Reads the first two lines to get the labels and features.
-    with codecs.open(mtxfile,"r","utf8") as fin:
-        firstline,secondline = list(islice(fin,2))
-        all_labels = firstline.strip().split('\t')
-        all_features = secondline.strip().split('\t')
+    if option == "dok_matrix":
+        matrix = sp.sparse.dok_matrix((len(all_labels), len(all_features)))
+        for i,label in enumerate(all_labels):
+            for j,feat in enumerate(all_features):
+                matrix[i, j] = _matrix[label][feat]
+    elif option == "csc_matrix":
+        matrix = csc_matrix(np.array([[_matrix[label][feat] \
+                                       for feat in all_features] \
+                                      for label in all_labels]))
     
-    if read_labels_features_only:
-        return all_labels, all_features
+    with open(outlabelfile, 'wb') as fout:
+        pickle.dump(all_labels, fout)
     
-    # Reading data into sparse matrix object.
-    with open(mtxfile,"rb") as fin:
-        next(fin); next(fin) # Skips first two rows.
-        # Reads the .mtx files into list of list of int.
-        data = map(partial(map,int),list(csv.reader(fin,delimiter='\t')))
-        # Converts list of list to sparse matrix.
-        matrix = csc_matrix(data)
-        ##print sys.getsizeof(matrix)
+    with open(outfeatfile, 'wb') as fout:
+        pickle.dump(all_features, fout)
     
-    return matrix, sorted(all_labels), sorted(all_features)
+    with open(outmatrixfile, 'wb') as fout:
+        pickle.dump(matrix, fout)
+        
+    return matrix, all_labels, all_features
 
 def sum_of(matrix, option, num):
     """
@@ -126,8 +122,6 @@ class mutual_information():
         *matrix* = one of the following scipy sparse matrices: 
         - sp.sparse.csc_matrix
         - sp.sparse.csr_matrix
-        - sp.sparse.coo_matrix
-        - sp.sparse.dia_matrix
         - sp.sparse.dok_matrix
         - sp.sparse.lil_matrix
         
@@ -217,20 +211,18 @@ class mutual_information():
     
     def topn_features(self, label, topn=10):
         """ Sort by value and then returns the keys of the top n features. """
-        return {sorted(self.mutualinfo[label].iteritems(), \
-                       key=operator.itemgetter(1))}.keys()[:topn]
+        return [i for i,j in sorted(self.mutualinfo[label].iteritems(), \
+                                  key=operator.itemgetter(1))][:topn]
 
 def test_mutual_information_class():
     # Testing the mutual_information class.
     x = np.array([[0,1,2,3,4],[1,2,3,4,5]])
     csc = csc_matrix(x)
     csr = sp.sparse.csr_matrix(x)
-    coo = sp.sparse.coo_matrix(x)
-    dia = sp.sparse.dia_matrix(x)
     dok = sp.sparse.dok_matrix(x)
     lil = sp.sparse.lil_matrix(x)
     
-    for matrix in [csc, csr, coo, dia, dok, lil]:
+    for matrix in [csc, csr, dok, lil]:
         labels = ['one', 'two']
         feats = ['a','b','c','d','e']
         mi = mutual_information(matrix, labels, feats)
@@ -244,8 +236,8 @@ def test_everything(datasource, n=3):
         
         # Creates matrix, labels and features from seeding.udhr
         print(" ".join(["Loading", datasource, "into scipy matrix ..."]))
-        make_mtxfile(datasource, outfilename=datasource+'-'+str(n)+'grams.mtx', n=n)
-        matrix, labels, features = read_mtxfile(datasource+'-'+str(n)+'grams.mtx')
+        matrix, labels, features = datasource2matrix(datasource,n=n, \
+                                                     option="csc_matrix")
         
         # Creates the Mutual information object. 
         mi = mutual_information(matrix, labels, features)
@@ -256,8 +248,8 @@ def test_everything(datasource, n=3):
     else:
         print(" ".join(["Loading Mutual Information object for",\
                        datasource,str(n)+'gram ...']))
-        labels, features = read_mtxfile(datasource+'-'+str(n)+'grams.mtx', \
-                                        read_labels_features_only = True)
+        matrix, labels, features = datasource2matrix(datasource,n=n, \
+                                                     option="csc_matrix")
         with open(datasource+'-'+str(n)+'grams-mutalinfo.pk','rb') as fin:
             mi = pickle.load(fin)
     
@@ -276,14 +268,14 @@ def test_everything(datasource, n=3):
     print(mi.mutualinfo[l][f]) # MI(label,feat)
     
     # Returns nbest features.
-    print(mi.topn_features(l, 10))
+    print(mi.topn_features(l, 100))
     print
 
 datasource = 'udhr'
 #for n in [1,2,3,4,5,'word']:
-for n in [3,4,5,'word']:
+for n in [1,2,3,4,5, 'word']:
     test_everything(datasource, n)
 
-test_mutual_information_class()
+##test_mutual_information_class()
 
 
