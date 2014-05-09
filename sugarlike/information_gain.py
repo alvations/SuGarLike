@@ -8,6 +8,7 @@ from collections import Counter,defaultdict
 from functools import partial
 
 import numpy as np
+import scipy as sp
 from scipy.sparse import csc_matrix
 
 from seedling import udhr
@@ -42,8 +43,8 @@ def make_mtxfile(datasource='udhr', outfilename=None, n=3):
         all_labels.add(lang)
         all_features.update(features)
     
-    all_features = sorted(features)
-    all_labels = sorted(labels)
+    all_features = sorted(all_features)
+    all_labels = sorted(all_labels)
     
     with open(outfilename, 'wb') as fout:
         # Use the first two lines to save the labels and features.
@@ -122,7 +123,15 @@ def calculate_mi(pi , pj, pij):
 class mutual_information():
     def __init__(self, matrix, all_labels, all_features):
         """ 
-        *matrix* any scipy matrix, scipy.sparse.csc_matrix recommended.
+        *matrix* = one of the following scipy sparse matrices: 
+        - sp.sparse.csc_matrix
+        - sp.sparse.csr_matrix
+        - sp.sparse.coo_matrix
+        - sp.sparse.dia_matrix
+        - sp.sparse.dok_matrix
+        - sp.sparse.lil_matrix
+        
+        scipy.sparse.csc_matrix recommended for size.
         """
         self.matrix = matrix
         self.all_labels = all_labels
@@ -201,40 +210,61 @@ class mutual_information():
             ##print("\t".join(map(str, [label, feat, this_mi])))
             self.mutualinfo.setdefault(label,{})[feat] = this_mi
 
-# Usage:
+def test_mutual_information_class():
+    # Testing the mutual_information class.
+    x = np.array([[0,1,2,3,4],[1,2,3,4,5]])
+    csc = csc_matrix(x)
+    csr = sp.sparse.csr_matrix(x)
+    coo = sp.sparse.coo_matrix(x)
+    dia = sp.sparse.dia_matrix(x)
+    dok = sp.sparse.dok_matrix(x)
+    lil = sp.sparse.lil_matrix(x)
+    
+    for matrix in [csc, lil, csr]:
+        labels = ['one', 'two']
+        feats = ['a','b','c','d','e']
+        mi = mutual_information(matrix, labels, feats)
+        print(mi.mutualinfo['one']['b'])
+        print
 
-if not os.path.exists('udhr-3grams-mutalinfo.pk'):
-    # Creates matrix, labels and features from seeding.udhr
-    make_mtxfile('udhr', outfilename='udhr-3grams.mtx', n=3)
-    matrix, labels, features = read_mtxfile('udhr-3grams.mtx')
-    # Creates the Mutual information object. 
-    mi = mutual_information(matrix, labels, features)
-    # Dumps into a pickle.
-    with open('udhr-3grams-mutalinfo.pk','wb') as fout:
-        pickle.dump(mi, fout)
-else:
-    with open('udhr-3grams-mutalinfo.pk','rb') as fin:
-        mi = pickle.load(fin)
+##test_mutual_info()
+
+def test_everything(datasource, n=3):
+    if not os.path.exists(datasource+'-'+str(n)+'grams-mutalinfo.pk'):
+        print("".join(["Creating Mutual Information OBJECT for",\
+                       datasource,str(n),'gram ...']))
+        # Creates matrix, labels and features from seeding.udhr
+        make_mtxfile(datasource, outfilename=datasource+'-'+str(n)+'grams.mtx', n=n)
+        matrix, labels, features = read_mtxfile(datasource+'-'+str(n)+'grams.mtx')
+        # Creates the Mutual information object. 
+        mi = mutual_information(matrix, labels, features)
+        # Dumps into a pickle.
+        with open(datasource+'-'+str(n)+'grams-mutalinfo.pk','wb') as fout:
+            pickle.dump(mi, fout)
+    else:
+        labels, features = read_mtxfile(datasource+'-'+str(n)+'grams.mtx', \
+                                        read_labels_features_only = True)
+        with open(datasource+'-'+str(n)+'grams-mutalinfo.pk','rb') as fin:
+            mi = pickle.load(fin)
+    
+    # To check the encoding of the labels and features:
+    print(type(features[0]), features[:100])
+    # To check the probabilities:
+    l = unicode('deu'); f = unicode('die Frau'[:n])
+    print(mi.prob_label(l)) # p(label)
+    print(mi.prob_feature(f)) # p(feat)
+    print(mi.prob_label_feature(l,f)) # p(label,feat)
+    print(log(mi.prob_feature(f))) # log(p(feat))
+
+    # To check the mutual information of a certain label+feature
+    ##l = unicode('eng'); f = unicode('the')
+    ##print(sorted(mi.mutualinfo[l].keys())) # Check list of feats for a language.
+    print(mi.mutualinfo[l][f]) # MI(label,feat)
+    print
+
+datasource = 'udhr'
+for n in [1,2,3,4,5,'word']:
+    test_everything(datasource, n)
 
 
 
-# To check the encoding of the labels and features:
-print(type(features[0]), features[:10])
-# To check the probabilities:
-l = unicode('eng'); f = unicode('the')
-print(mi.prob_feature(l))
-print(mi.prob_label_feature(l,f))
-
-# To check the mutual information of a certain label+feature
-##l = unicode('eng'); f = unicode('the')
-##print(sorted(mi.mutualinfo[l].keys())) # Check list of feats for a language.
-print(mi.mutualinfo[l][f])
-
-
-'''
-matrix = csc_matrix(np.array[[0,1,2,3,4],[1,2,3,4,5]])
-labels = ['one', 'two']
-feats = ['a','b','c','d','e']
-mi = mutual_information(matrix, labels, feats)
-print(mi.mutualinfo['a']['b'])
-'''
