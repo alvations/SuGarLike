@@ -132,6 +132,11 @@ class mutual_information():
         - sp.sparse.lil_matrix
         
         scipy.sparse.csc_matrix recommended for size.
+        
+        *all_labels* = rows
+        *all_features* = column
+        
+        
         """
         self.matrix = matrix
         self.all_labels = all_labels
@@ -209,6 +214,11 @@ class mutual_information():
             this_mi = calculate_mi(pi, pj, pij)
             ##print("\t".join(map(str, [label, feat, this_mi])))
             self.mutualinfo.setdefault(label,{})[feat] = this_mi
+    
+    def topn_features(self, label, topn=10):
+        """ Sort by value and then returns the keys of the top n features. """
+        return {sorted(self.mutualinfo[label].iteritems(), \
+                       key=operator.itemgetter(1))}.keys()[:topn]
 
 def test_mutual_information_class():
     # Testing the mutual_information class.
@@ -220,28 +230,32 @@ def test_mutual_information_class():
     dok = sp.sparse.dok_matrix(x)
     lil = sp.sparse.lil_matrix(x)
     
-    for matrix in [csc, lil, csr]:
+    for matrix in [csc, csr, coo, dia, dok, lil]:
         labels = ['one', 'two']
         feats = ['a','b','c','d','e']
         mi = mutual_information(matrix, labels, feats)
         print(mi.mutualinfo['one']['b'])
         print
 
-##test_mutual_info()
-
 def test_everything(datasource, n=3):
     if not os.path.exists(datasource+'-'+str(n)+'grams-mutalinfo.pk'):
-        print("".join(["Creating Mutual Information OBJECT for",\
-                       datasource,str(n),'gram ...']))
+        print(" ".join(["Creating Mutual Information object for",\
+                       datasource,str(n)+'gram ...']))
+        
         # Creates matrix, labels and features from seeding.udhr
+        print(" ".join(["Loading", datasource, "into scipy matrix ..."]))
         make_mtxfile(datasource, outfilename=datasource+'-'+str(n)+'grams.mtx', n=n)
         matrix, labels, features = read_mtxfile(datasource+'-'+str(n)+'grams.mtx')
+        
         # Creates the Mutual information object. 
         mi = mutual_information(matrix, labels, features)
+        
         # Dumps into a pickle.
         with open(datasource+'-'+str(n)+'grams-mutalinfo.pk','wb') as fout:
             pickle.dump(mi, fout)
     else:
+        print(" ".join(["Loading Mutual Information object for",\
+                       datasource,str(n)+'gram ...']))
         labels, features = read_mtxfile(datasource+'-'+str(n)+'grams.mtx', \
                                         read_labels_features_only = True)
         with open(datasource+'-'+str(n)+'grams-mutalinfo.pk','rb') as fin:
@@ -250,7 +264,7 @@ def test_everything(datasource, n=3):
     # To check the encoding of the labels and features:
     print(type(features[0]), features[:100])
     # To check the probabilities:
-    l = unicode('deu'); f = unicode('die Frau'[:n])
+    l = unicode('deu'); f = unicode('dieser'[:n])
     print(mi.prob_label(l)) # p(label)
     print(mi.prob_feature(f)) # p(feat)
     print(mi.prob_label_feature(l,f)) # p(label,feat)
@@ -260,11 +274,16 @@ def test_everything(datasource, n=3):
     ##l = unicode('eng'); f = unicode('the')
     ##print(sorted(mi.mutualinfo[l].keys())) # Check list of feats for a language.
     print(mi.mutualinfo[l][f]) # MI(label,feat)
+    
+    # Returns nbest features.
+    print(mi.topn_features(l, 10))
     print
 
 datasource = 'udhr'
-for n in [1,2,3,4,5,'word']:
+#for n in [1,2,3,4,5,'word']:
+for n in [3,4,5,'word']:
     test_everything(datasource, n)
 
+test_mutual_information_class()
 
 
