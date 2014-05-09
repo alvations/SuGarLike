@@ -216,18 +216,21 @@ class mutual_information():
 
 def test_mutual_information_class():
     # Testing the mutual_information class.
-    x = np.array([[0,1,2,3,4],[1,2,3,4,5]])
+    x = np.array([[5,5,5,3,4],[0,0,0,9,9]])
     csc = csc_matrix(x)
     csr = sp.sparse.csr_matrix(x)
     dok = sp.sparse.dok_matrix(x)
     lil = sp.sparse.lil_matrix(x)
     
+    labels = ['one', 'two']
+    feats = ['a','b','c','d','e']
+    
     for matrix in [csc, csr, dok, lil]:
-        labels = ['one', 'two']
-        feats = ['a','b','c','d','e']
+
         mi = mutual_information(matrix, labels, feats)
-        print(mi.mutualinfo['one']['b'])
+        print(mi.mutualinfo)
         print
+
 
 def test_everything(datasource, n=3):
     if not os.path.exists(datasource+'-'+str(n)+'grams-mutalinfo.pk'):
@@ -254,13 +257,13 @@ def test_everything(datasource, n=3):
             mi = pickle.load(fin)
     
     # To check the encoding of the labels and features:
-    print(type(features[0]), features[:100])
+    ##print(type(features[0]), features[:100])
     # To check the probabilities:
-    l = unicode('deu'); f = unicode('dieser'[:n])
-    print(mi.prob_label(l)) # p(label)
-    print(mi.prob_feature(f)) # p(feat)
-    print(mi.prob_label_feature(l,f)) # p(label,feat)
-    print(log(mi.prob_feature(f))) # log(p(feat))
+    l = unicode('fuc'); f = unicode('ɗum')
+    #print(mi.prob_label(l)) # p(label)
+    #print(mi.prob_feature(f)) # p(feat)
+    #print(mi.prob_label_feature(l,f)) # p(label,feat)
+    #print(log(mi.prob_feature(f))) # log(p(feat))
 
     # To check the mutual information of a certain label+feature
     ##l = unicode('eng'); f = unicode('the')
@@ -270,12 +273,19 @@ def test_everything(datasource, n=3):
     # Returns nbest features.
     print(mi.topn_features(l, 100))
     print
+    
+    l = unicode('deu')
+    print(mi.topn_features(l, 100))
+
+
+##test_mutual_information_class()
 
 datasource = 'udhr'
 #for n in [1,2,3,4,5,'word']:
-for n in [1,2,3,4,5, 'word']:
+for n in ['word']:
     test_everything(datasource, n)
 
-##test_mutual_information_class()
+
+##
 
 
