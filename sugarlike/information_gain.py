@@ -23,6 +23,66 @@ def sent2ngrams(text, n=3):
         return text.split()
     return list(chain(*[word2ngrams(i,n) for i in text.lower().split()]))
 
+
+def get_features_crubadan(n, featfreqs, all_langs, all_features):
+    """
+    Return features (n-grams or words) for the crubadan data.
+    Language codes are not converted into ISO.
+    Allow feature 'word' and feature '5' (return all 1-5 character grams).
+    """
+
+    crubadanfile='crub-131119.zip'
+    print('get_feat_crub')
+    import os, zipfile
+    from collections import defaultdict, Counter
+    thisdir = os.path.dirname(__file__) if os.path.dirname(__file__) \
+            is not "" else "."
+
+    crubadanfile =  thisdir + '/seedling/data/crubadan/' + crubadanfile
+    assert os.path.exists(crubadanfile)
+
+    with zipfile.ZipFile(crubadanfile,'r') as inzipfile:
+     for infile in inzipfile.namelist():
+      path, filename = os.path.split(infile)
+      if filename.strip()!= '':
+       if n == 'word' and 'words' in path or n == 5 and 'chars' in path:
+        lang = filename.rpartition('.')[0]
+        if '-' in lang:
+           lang = lang.partition('-')[0]
+        #print('lang: ' + lang)
+        all_langs.add(lang)
+        for line in inzipfile.open(infile):
+            feature, count = line.strip().split(' ')
+            featfreqs[lang][feature] = int(count)
+            all_features.add(feature)
+    #print(all_langs)
+    #print('all_features: ' + str(all_features))
+    #print('featfreqs: ' + str(featfreqs))
+    return featfreqs, all_langs, all_features
+
+
+def get_features(datasource, n):
+    """Return features (n-grams or words) for the datasource. Also retrun list of all labels (languages) and all features."""
+    _matrix = defaultdict(Counter)
+    all_features = set()
+    all_labels = set()
+
+    if datasource=='crubadan':
+        return get_features_crubadan(n, _matrix, all_labels, all_features)
+    else:
+        
+        _matrix = defaultdict(Counter)
+        all_features = set()
+        all_labels = set()
+        # Accessing SeedLing corpus and extracting Ngrams. 
+        for lang, sent in globals()[datasource].sents():
+            features = sent2ngrams(sent, n=n)
+            print(features)
+            _matrix[lang].update(features)
+            all_labels.add(lang)
+            all_features.update(features)
+        return _matrix, all_labels, all_features
+
 def datasource2matrix(datasource='udhr', n=3, option="csc_matrix"):
     outmatrixfile = datasource+"-"+str(n)+'grams.mtx'
     outlabelfile = datasource+"-"+str(n)+'grams.label'
@@ -40,15 +100,11 @@ def datasource2matrix(datasource='udhr', n=3, option="csc_matrix"):
         
         return matrix, all_labels, all_features
     
-    _matrix = defaultdict(Counter)
-    all_features = set()
-    all_labels = set()
-    # Accessing SeedLing corpus and extracting Ngrams. 
-    for lang, sent in globals()[datasource].sents():
-        features = sent2ngrams(sent, n=n)
-        _matrix[lang].update(features)
-        all_labels.add(lang)
-        all_features.update(features)
+    _matrix, all_labels, all_features = get_features(datasource, n)
+   
+    #print(_matrix)
+    #print(all_labels)
+    #print(all_features)
     
     all_features = sorted(all_features)
     all_labels = sorted(all_labels)
@@ -259,7 +315,7 @@ def test_everything(datasource, n=3):
     # To check the encoding of the labels and features:
     ##print(type(features[0]), features[:100])
     # To check the probabilities:
-    l = unicode('fuc'); f = unicode('ɗum')
+    '''l = unicode('fuc'); f = unicode('ɗum')
     #print(mi.prob_label(l)) # p(label)
     #print(mi.prob_feature(f)) # p(feat)
     #print(mi.prob_label_feature(l,f)) # p(label,feat)
@@ -275,12 +331,12 @@ def test_everything(datasource, n=3):
     print
     
     l = unicode('deu')
-    print(mi.topn_features(l, 100))
+    print(mi.topn_features(l, 100))'''
 
 
 ##test_mutual_information_class()
 
-datasource = 'udhr'
+datasource = 'crubadan'
 #for n in [1,2,3,4,5,'word']:
 for n in ['word']:
     test_everything(datasource, n)
