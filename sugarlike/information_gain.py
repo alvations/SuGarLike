@@ -112,10 +112,10 @@ def datasource2matrix(datasource='udhr', n=3, option="csc_matrix"):
             for j,feat in enumerate(all_features):
                 matrix[i, j] = _matrix[label][feat]
     elif option == "csc_matrix":
-        ig = itemgetter(*all_features) # A hack and gain a little more speed.
-        matrix = csc_matrix(np.array([[ig(_matrix[label]) \
+        matrix = csc_matrix(np.array([[_matrix[label][feat] \
                                        for feat in all_features] \
                                        for label in all_labels]))
+        print("Converted features into scipy matrix")
     
     with open(outlabelfile, 'wb') as fout:
         pickle.dump(all_labels, fout)
