@@ -29,7 +29,7 @@ def get_features_crubadan(n, featfreqs, all_langs, all_features):
     """
     Return features (n-grams or words) for the crubadan data.
     Language codes are not converted into ISO.
-    Allow feature 'word' and feature '5' (return all 1-5 character grams).
+    Allow feature 'word' and 1 to 5 (for character grams).
     """
     crubadanfile='crub-131119.zip'
     crubadanfile =  os.getcwd() + '/seedling/data/crubadan/' + crubadanfile
@@ -39,16 +39,20 @@ def get_features_crubadan(n, featfreqs, all_langs, all_features):
      for infile in sorted(inzipfile.namelist()):
       path, filename = os.path.split(infile)
       if filename.strip() != '':
-       if n == 'word' and 'words' in path or n == 5 and 'chars' in path:
+       if n == 'word' and 'words' in path or n in [1,2,3,4,5] and 'chars' in path:
         lang = filename.rpartition('.')[0]
         if '-' in lang:
            lang = lang.partition('-')[0]
         all_langs.add(lang)
         for line in inzipfile.open(infile):
             feature, count = line.strip().split(' ')
-            featfreqs[lang][feature] = int(count)
-            all_features.add(feature)
-
+            if n in [1,2,3,4,5] and len(feature.decode('utf-8')) == n or n == 'word':
+              #print(feature)
+              featfreqs[lang][feature] = int(count)
+              all_features.add(feature)
+    for feature in all_features:
+        print (feature), # .decode('utf-8')
+    print(len(all_features))
     return featfreqs, all_langs, all_features
 
 
@@ -329,11 +333,6 @@ def test_everything(datasource, n=3):
 ##test_mutual_information_class()
 
 datasource = 'crubadan'
-#for n in [1,2,3,4,5,'word']:
-for n in ['word']:
+for n in [1,2,3]: # ,4,5,'word'
     test_everything(datasource, n)
-
-
-##
-
 
