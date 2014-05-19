@@ -2,9 +2,10 @@
 
 import codecs, csv, sys, random, os
 import math, operator
+import zipfile
 import cPickle as pickle
 from itertools import chain, islice, izip
-from collections import Counter,defaultdict
+from collections import Counter, defaultdict
 from functools import partial
 
 import numpy as np
@@ -30,47 +31,40 @@ def get_features_crubadan(n, featfreqs, all_langs, all_features):
     Language codes are not converted into ISO.
     Allow feature 'word' and feature '5' (return all 1-5 character grams).
     """
-
     crubadanfile='crub-131119.zip'
-    print('get_feat_crub')
-    import os, zipfile
-    from collections import defaultdict, Counter
-    thisdir = os.path.dirname(__file__) if os.path.dirname(__file__) \
-            is not "" else "."
-
-    crubadanfile =  thisdir + '/seedling/data/crubadan/' + crubadanfile
+    crubadanfile =  './seedling/data/crubadan/' + crubadanfile
     assert os.path.exists(crubadanfile)
 
     with zipfile.ZipFile(crubadanfile,'r') as inzipfile:
-     for infile in inzipfile.namelist():
+     for infile in sorted(inzipfile.namelist()):
       path, filename = os.path.split(infile)
-      if filename.strip()!= '':
+      if filename.strip() != '':
        if n == 'word' and 'words' in path or n == 5 and 'chars' in path:
         lang = filename.rpartition('.')[0]
         if '-' in lang:
            lang = lang.partition('-')[0]
-        #print('lang: ' + lang)
         all_langs.add(lang)
         for line in inzipfile.open(infile):
             feature, count = line.strip().split(' ')
             featfreqs[lang][feature] = int(count)
             all_features.add(feature)
-    #print(all_langs)
-    #print('all_features: ' + str(all_features))
-    #print('featfreqs: ' + str(featfreqs))
+
     return featfreqs, all_langs, all_features
 
 
 def get_features(datasource, n):
-    """Return features (n-grams or words) for the datasource. Also retrun list of all labels (languages) and all features."""
+    """
+    Return features (n-grams or words) for the datasource. 
+    Also return list of all labels (languages) and all features.
+    """
     _matrix = defaultdict(Counter)
     all_features = set()
     all_labels = set()
 
     if datasource=='crubadan':
-        return get_features_crubadan(n, _matrix, all_labels, all_features)
+        _matrix, all_labels, all_features = \
+            get_features_crubadan(n, _matrix, all_labels, all_features)
     else:
-        
         _matrix = defaultdict(Counter)
         all_features = set()
         all_labels = set()
@@ -81,7 +75,9 @@ def get_features(datasource, n):
             _matrix[lang].update(features)
             all_labels.add(lang)
             all_features.update(features)
-        return _matrix, all_labels, all_features
+    print(datasource + ' data read in.')
+    return _matrix, all_labels, all_features
+
 
 def datasource2matrix(datasource='udhr', n=3, option="csc_matrix"):
     outmatrixfile = datasource+"-"+str(n)+'grams.mtx'
@@ -102,10 +98,6 @@ def datasource2matrix(datasource='udhr', n=3, option="csc_matrix"):
     
     _matrix, all_labels, all_features = get_features(datasource, n)
    
-    #print(_matrix)
-    #print(all_labels)
-    #print(all_features)
-    
     all_features = sorted(all_features)
     all_labels = sorted(all_labels)
     
