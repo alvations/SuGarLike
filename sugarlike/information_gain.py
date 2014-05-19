@@ -5,6 +5,7 @@ import math, operator
 import zipfile
 import cPickle as pickle
 from itertools import chain, islice, izip
+from operator import itemgetter
 from collections import Counter, defaultdict
 from functools import partial
 
@@ -111,9 +112,10 @@ def datasource2matrix(datasource='udhr', n=3, option="csc_matrix"):
             for j,feat in enumerate(all_features):
                 matrix[i, j] = _matrix[label][feat]
     elif option == "csc_matrix":
-        matrix = csc_matrix(np.array([[_matrix[label][feat] \
+        ig = itemgetter(*all_features) # A hack and gain a little more speed.
+        matrix = csc_matrix(np.array([[ig(_matrix[label]) \
                                        for feat in all_features] \
-                                      for label in all_labels]))
+                                       for label in all_labels]))
     
     with open(outlabelfile, 'wb') as fout:
         pickle.dump(all_labels, fout)
