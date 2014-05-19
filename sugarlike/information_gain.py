@@ -32,7 +32,7 @@ def get_features_crubadan(n, featfreqs, all_langs, all_features):
     Allow feature 'word' and feature '5' (return all 1-5 character grams).
     """
     crubadanfile='crub-131119.zip'
-    crubadanfile =  './seedling/data/crubadan/' + crubadanfile
+    crubadanfile =  os.getcwd() + '/seedling/data/crubadan/' + crubadanfile
     assert os.path.exists(crubadanfile)
 
     with zipfile.ZipFile(crubadanfile,'r') as inzipfile:
