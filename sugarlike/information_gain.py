@@ -1,12 +1,13 @@
 #!/usr/bin/env python -*- coding: utf-8 -*-
 
-from __future__ import division
+from __future__ import division, print_function
 
 import os
 import cPickle as pickle
 from zipfile import ZipFile
 from itertools import chain
 from collections import Counter, defaultdict
+from math import log
 
 import numpy as np
 import scipy as sp
@@ -138,13 +139,6 @@ def datasource2matrix(datasource='crubadan', n=3, option="csr_matrix", verbose=F
     return matrix, all_labels, all_features
 
 
-from math import log as mlog
-def log(prob):
-    if prob == 0:
-        return -np.Infinity
-    else:
-        return mlog(prob)
-
 def mutual_information(pi, pj, pij):
     """
     Calculates the mutual information of two Bernoulli distributions,
@@ -161,10 +155,11 @@ def mutual_information(pi, pj, pij):
     log_p_i = log(p_i)
     log_p_j = log(p_j)
     
-    mi =   pij * (log(pij) - log_pi - log_pj) + \
-            pi_j * (log(pi_j) - log_pi - log_p_j) + \
-            p_ij * (log(p_ij) - log_p_i - log_pj) + \
-            p_i_j * (log(p_i_j) - log_p_i - log_p_j)
+    mi = pij * (log(pij) - log_pi - log_pj) + \
+         pi_j * (log(pi_j) - log_pi - log_p_j) + \
+         p_i_j * (log(p_i_j) - log_p_i - log_p_j)
+    if p_ij != 0:  # For language groups and features, this is the only probability that could be zero, and lim_x->0[x*log(x)] = 0 
+        mi += p_ij * (log(p_ij) - log_p_i - log_pj)
     
     return mi
 
@@ -264,8 +259,8 @@ def get_matrix(datasource='crubadan', n=3):
 
 if __name__ == "__main__":
     crub_mx = get_matrix(datasource='crubadan', n=1)
-    print("Calculating pointwise mutual information ...")
-    crub_mx.convert(pointwise_mi)
+    print("Calculating mutual information ...")
+    crub_mx.convert(mutual_information)
     for code, feat, value in crub_mx.iter_nonzero_label():
-        if value > 10:
-            print(code, feat, value)
+        if value > 10**-3:
+            print(code, feat.decode('utf8'), value)
