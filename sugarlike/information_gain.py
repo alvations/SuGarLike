@@ -26,7 +26,7 @@ def sent2ngrams(text, n=3):
     return list(chain(*[word2ngrams(i,n) for i in text.lower().split()]))
 
 
-def get_features_crubadan(n, featfreqs, all_langs, all_features):
+def get_features_crubadan(n, featfreqs, all_langs, all_features, verbose=False):
     """
     Return features (n-grams or words) for the crubadan data.
     Language codes are not converted into ISO.
@@ -51,9 +51,10 @@ def get_features_crubadan(n, featfreqs, all_langs, all_features):
               #print(feature)
               featfreqs[lang][feature] = int(count)
               all_features.add(feature)
-    for feature in all_features:
-        print (feature), # .decode('utf-8')
-    print(len(all_features))
+    if verbose:
+	    for feature in all_features:
+	        print (feature), # .decode('utf-8')
+	    print(len(all_features))
     return featfreqs, all_langs, all_features
 
 
@@ -287,7 +288,7 @@ def test_mutual_information_class():
 
 
 def test_everything(datasource, n=3):
-    if not os.path.exists(datasource+'-'+str(n)+'grams-mutalinfo.pk'):
+    if not os.path.exists(datasource+'-'+str(n)+'grams-mutualinfo.pk'):
         print(" ".join(["Creating Mutual Information object for",\
                        datasource,str(n)+'gram ...']))
         
@@ -300,14 +301,14 @@ def test_everything(datasource, n=3):
         mi = mutual_information(matrix, labels, features)
         
         # Dumps into a pickle.
-        with open(datasource+'-'+str(n)+'grams-mutalinfo.pk','wb') as fout:
+        with open(datasource+'-'+str(n)+'grams-mutualinfo.pk','wb') as fout:
             pickle.dump(mi, fout)
     else:
         print(" ".join(["Loading Mutual Information object for",\
                        datasource,str(n)+'gram ...']))
         matrix, labels, features = datasource2matrix(datasource,n=n, \
                                                      option="csc_matrix")
-        with open(datasource+'-'+str(n)+'grams-mutalinfo.pk','rb') as fin:
+        with open(datasource+'-'+str(n)+'grams-mutualinfo.pk','rb') as fin:
             mi = pickle.load(fin)
     
     # To check the encoding of the labels and features:
