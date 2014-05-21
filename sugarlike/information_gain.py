@@ -58,34 +58,40 @@ def get_features_crubadan(n, featfreqs, all_langs, all_features, verbose=False):
     return featfreqs, all_langs, all_features
 
 
-def get_features(datasource, n):
+def get_features(datasource, n, verbose=False):
     """
     Return features (n-grams or words) for the datasource. 
     Also return list of all labels (languages) and all features.
     """
-    _matrix = defaultdict(Counter)
+    matrix_dict = defaultdict(Counter)
     all_features = set()
     all_labels = set()
 
     if datasource=='crubadan':
-        _matrix, all_labels, all_features = \
-            get_features_crubadan(n, _matrix, all_labels, all_features)
+        matrix_dict, all_labels, all_features = \
+            get_features_crubadan(n, matrix_dict, all_labels, all_features)
     else:
-        _matrix = defaultdict(Counter)
+        matrix_dict = defaultdict(Counter)
         all_features = set()
         all_labels = set()
         # Accessing SeedLing corpus and extracting Ngrams. 
         for lang, sent in globals()[datasource].sents():
             features = sent2ngrams(sent, n=n)
-            print(features)
-            _matrix[lang].update(features)
+            if verbose:
+                print(features)
+            matrix_dict[lang].update(features)
             all_labels.add(lang)
             all_features.update(features)
-    print(datasource + ' data read in.')
-    return _matrix, all_labels, all_features
+    if verbose:
+        print(datasource + ' data read in.')
+    return matrix_dict, all_labels, all_features
 
 
-def datasource2matrix(datasource='udhr', n=3, option="csc_matrix"):
+def datasource2matrix(datasource='udhr', n=3, option="csc_matrix", verbose=False):
+    """
+    Calls get_features, and converts the data to a scipy matrix.
+    Names of languages and features are stored as lists.
+    """
     outmatrixfile = datasource+"-"+str(n)+'grams.mtx'
     outlabelfile = datasource+"-"+str(n)+'grams.label'
     outfeatfile = datasource+"-"+str(n)+'grams.feats'
@@ -102,7 +108,7 @@ def datasource2matrix(datasource='udhr', n=3, option="csc_matrix"):
         
         return matrix, all_labels, all_features
     
-    _matrix, all_labels, all_features = get_features(datasource, n)
+    matrix_dict, all_labels, all_features = get_features(datasource, n)
    
     all_features = sorted(all_features)
     all_labels = sorted(all_labels)
@@ -111,11 +117,14 @@ def datasource2matrix(datasource='udhr', n=3, option="csc_matrix"):
         matrix = sp.sparse.dok_matrix((len(all_labels), len(all_features)))
         for i,label in enumerate(all_labels):
             for j,feat in enumerate(all_features):
-                matrix[i, j] = _matrix[label][feat]
+                matrix[i, j] = matrix_dict[label][feat]
     elif option == "csc_matrix":
-        matrix = csc_matrix(np.array([[_matrix[label][feat] \
+        matrix = csc_matrix(np.array([[matrix_dict[label][feat] \
                                        for feat in all_features] \
                                        for label in all_labels]))
+    else:
+        raise Exception('option not recognised')
+    if verbose:
         print("Converted features into scipy matrix")
     
     with open(outlabelfile, 'wb') as fout:
@@ -129,30 +138,21 @@ def datasource2matrix(datasource='udhr', n=3, option="csc_matrix"):
         
     return matrix, all_labels, all_features
 
-def sum_of(matrix, option, num):
-    """
-    [in]: a scipy matrix, 
-    [out]: sum of column|row given the column|row number.
-    Usage:
-    >>> sum_of(matrix, "row", 2)
-    >>> sum_of(matrix, "col", 2)
-    """
-    options = {"col":0, "row":1}
-    return int(matrix.sum(axis=options[option])[num])
-
 def try_except(myFunction, *params):
     """ Generic try-except to catch ZeroDivisionError, ValueError """
     try:
         return myFunction(*params)
-    except ZeroDivisionError as e:
+    except (ZeroDivisionError, ValueError):
         return np.NAN
-    except ValueError as e:
-        return 0
 
 def log(prob):
     return try_except(math.log, prob)
 
-def calculate_mi(pi , pj, pij):
+def calculate_mi(pi, pj, pij):
+    """
+    Calculates the mutual information of two Bernoulli distributions,
+    which have marginal probabilities pi and pj, and joint probability pij
+    """
     p_i = 1-pi
     p_j = 1-pj
     p_ij = pj - pij
@@ -164,12 +164,12 @@ def calculate_mi(pi , pj, pij):
     log_p_i = log(p_i)
     log_p_j = log(p_j)
     
-    mi5 =   pij * (log(pij) - log_pi - log_pj) + \
+    mi =   pij * (log(pij) - log_pi - log_pj) + \
             pi_j * (log(pi_j) - log_pi - log_p_j) + \
             p_ij * (log(p_ij) - log_p_i - log_pj) + \
             p_i_j * (log(p_i_j) - log_p_i - log_p_j)
     
-    return mi5
+    return mi
 
 class mutual_information():
     def __init__(self, matrix, all_labels, all_features):
@@ -298,9 +298,11 @@ def test_everything(datasource, n=3):
                                                      option="csc_matrix")
         
         # Creates the Mutual information object. 
+        print("Calculating mutual information ...")
         mi = mutual_information(matrix, labels, features)
         
         # Dumps into a pickle.
+        print("Pickling ...")
         with open(datasource+'-'+str(n)+'grams-mutualinfo.pk','wb') as fout:
             pickle.dump(mi, fout)
     else:
@@ -336,6 +338,6 @@ def test_everything(datasource, n=3):
 ##test_mutual_information_class()
 
 datasource = 'crubadan'
-for n in [1,2,3]: # ,4,5,'word'
+for n in [1, 2, 3, 4, 5, 'word']:
     test_everything(datasource, n)
 
