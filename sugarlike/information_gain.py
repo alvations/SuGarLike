@@ -158,7 +158,10 @@ def get_matrix(datasource='crubadan', n=3, option="raw", collapse=False):
     """
     Loads matrix (if pickled), or calculates it.
     """
-    filename = "matrices/{}-{}-{}.pk.gz".format(datasource, n, option)
+    subdir = "matrices"
+    filename = "{}/{}-{}-{}.pk.gz".format(subdir, datasource, n, option)
+    if not os.path.exists(subdir):
+        os.mkdir(subdir)
     
     if os.path.exists(filename):
         print("Loading {} data ({}-gram, {}) ...".format(datasource, n, option))
