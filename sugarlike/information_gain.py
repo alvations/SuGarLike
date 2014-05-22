@@ -2,7 +2,7 @@
 
 from __future__ import division, print_function
 
-import os
+import os, sys, gzip
 import cPickle as pickle
 from zipfile import ZipFile
 from itertools import chain
@@ -11,132 +11,9 @@ from math import log
 
 import numpy as np
 import scipy as sp
-from scipy.sparse import csr_matrix
+from scipy.sparse import csr_matrix, dok_matrix
 
 from seedling import udhr
-
-
-def word2ngrams(text, n=3):
-    """ Convert word into character ngrams. """
-    return [text[i:i+n] for i in range(len(text)-n+1)]
-
-def sent2ngrams(text, n=3):
-    """ Convert sentence into character ngrams. """
-    if n == "word":
-        return text.split()
-    return list(chain(*[word2ngrams(i,n) for i in text.lower().split()]))
-
-
-def get_features_crubadan(n, featfreqs, all_langs, all_features, verbose=False):
-    """
-    Return features (n-grams or words) for the crubadan data.
-    Language codes are not converted into ISO.
-    Allow feature 'word' and 1 to 5 (for character grams).
-    """
-    crubadanfile='crub-131119.zip'
-    crubadanfile =  os.getcwd() + '/seedling/data/crubadan/' + crubadanfile
-    assert os.path.exists(crubadanfile)
-
-    with ZipFile(crubadanfile,'r') as inzipfile:
-     for infile in sorted(inzipfile.namelist()):
-      path, filename = os.path.split(infile)
-      if filename.strip() != '':
-       if n == 'word' and 'words' in path or n in [1,2,3,4,5] and 'chars' in path:
-        lang = filename.rpartition('.')[0]
-        if '-' in lang:
-           lang = lang.partition('-')[0]
-        all_langs.add(lang)
-        for line in inzipfile.open(infile):
-            feature, count = line.strip().split(' ')
-            if n in [1,2,3,4,5] and len(feature.decode('utf-8')) == n or n == 'word':
-              #print(feature)
-              featfreqs[lang][feature] = int(count)
-              all_features.add(feature)
-    if verbose:
-	    for feature in all_features:
-	        print (feature), # .decode('utf-8')
-	    print(len(all_features))
-    return featfreqs, all_langs, all_features
-
-
-def get_features(datasource, n, verbose=False):
-    """
-    Return features (n-grams or words) for the datasource. 
-    Also return list of all labels (languages) and all features.
-    """
-    matrix_dict = defaultdict(Counter)
-    all_features = set()
-    all_labels = set()
-
-    if datasource=='crubadan':
-        matrix_dict, all_labels, all_features = \
-            get_features_crubadan(n, matrix_dict, all_labels, all_features)
-    else:
-        matrix_dict = defaultdict(Counter)
-        all_features = set()
-        all_labels = set()
-        # Accessing SeedLing corpus and extracting Ngrams. 
-        for lang, sent in globals()[datasource].sents():
-            features = sent2ngrams(sent, n=n)
-            if verbose:
-                print(features)
-            matrix_dict[lang].update(features)
-            all_labels.add(lang)
-            all_features.update(features)
-    if verbose:
-        print(datasource + ' data read in.')
-    return matrix_dict, all_labels, all_features
-
-def datasource2matrix(datasource='crubadan', n=3, option="csr_matrix", verbose=False):
-    """
-    Calls get_features, and converts the data to a scipy matrix.
-    Names of languages and features are stored as lists.
-    """
-    outmatrixfile = datasource+"-"+str(n)+'grams.mtx'
-    outlabelfile = datasource+"-"+str(n)+'grams.label'
-    outfeatfile = datasource+"-"+str(n)+'grams.feats'
-    
-    if os.path.exists(outmatrixfile):
-        with open(outmatrixfile, 'rb') as fin:
-            matrix = pickle.load(fin)
-        
-        with open(outlabelfile, 'rb') as fin:
-            all_labels = pickle.load(fin)
-
-        with open(outfeatfile, 'rb') as fin:
-            all_features = pickle.load(fin)
-        
-        return matrix, all_labels, all_features
-    
-    matrix_dict, all_labels, all_features = get_features(datasource, n)
-   
-    all_features = sorted(all_features)
-    all_labels = sorted(all_labels)
-    
-    if option == "dok_matrix": # it's slower.
-        matrix = sp.sparse.dok_matrix((len(all_labels), len(all_features)))
-        for i,label in enumerate(all_labels):
-            for j,feat in enumerate(all_features):
-                matrix[i, j] = matrix_dict[label][feat]
-    elif option == "csr_matrix":
-        matrix = csr_matrix(np.array([[matrix_dict[label][feat] \
-                                       for feat in all_features] \
-                                       for label in all_labels]))
-    else:
-        raise Exception('option not recognised')
-    if verbose:
-        print("Converted features into scipy matrix")
-    
-    with open(outlabelfile, 'wb') as fout:
-        pickle.dump(all_labels, fout)
-    
-    with open(outfeatfile, 'wb') as fout:
-        pickle.dump(all_features, fout)
-    
-    with open(outmatrixfile, 'wb') as fout:
-        pickle.dump(matrix, fout)
-        
-    return matrix, all_labels, all_features
 
 
 def mutual_information(pi, pj, pij):
@@ -179,12 +56,13 @@ class csr_matrix_labelled(csr_matrix):
     """
     def __init__(self, *args, **kwargs):
         """ Initialises the matrix, then adds labels """
-        """ *args and **kwargs are used so that scipy doens't break """
+        # *args and **kwargs are used so that scipy doesn't break
+        # Force datatype to be float:
         kwargs.setdefault('dtype','float')
         super(csr_matrix_labelled, self).__init__(args[0], **kwargs)
-        """ __init__ is called twice, for some reason; the second time only with arg[0], so we need this if-clause """
+        # __init__ is called twice, for some reason; the second time only with arg[0], so we need this if-clause
         if len(args) > 1:
-            assert self.shape == (len(args[1]), len(args[2]))
+            assert self.shape == (len(args[1]), len(args[2]))  # Check that the number of labels matches the data 
             self.codes = args[1] #codes
             self.feats = args[2] #features
     
@@ -210,7 +88,7 @@ class csr_matrix_labelled(csr_matrix):
         for col in range(len(self.feats)):
             yield feat[col], self[:,col]
     
-    def get(self, code, feature):
+    def from_label(self, code, feature):
         """ Looks up a cell, from labels """
         """ Note: not optimised """
         row = self.codes.index(code)
@@ -230,7 +108,7 @@ class csr_matrix_labelled(csr_matrix):
     
     def convert(self, function=pointwise_mi):
         """
-        Converts all non-zero entries using to the given function
+        Converts all non-zero entries using the given function
         Suggested functions:
          - mutual_information
          - pointwise_mi
@@ -241,26 +119,143 @@ class csr_matrix_labelled(csr_matrix):
         for row, col, value in self.iter_nonzero():
             self[row, col] = function(code_prob[row,0], feat_prob[0,col], value)
 
-def get_matrix(datasource='crubadan', n=3):
-    filename = "{}-{}-matrix.pk".format(datasource, n)
+
+def word2ngrams(text, n=3):
+    """ Convert word into character ngrams. """
+    return [text[i:i+n] for i in range(len(text)-n+1)]
+
+def sent2ngrams(text, n=3):
+    """ Convert sentence into character ngrams. """
+    if n == "word":
+        return text.split()
+    return list(chain(*[word2ngrams(i,n) for i in text.lower().split()]))
+
+
+def get_raw_crubadan(n, collapse=False):
+    """
+    Return features (n-grams or words) for the crubadan data.
+    Language codes are not converted into ISO.
+    Allow feature 'word' and 1 to 5 (for character grams).
+    """
+    crubadanfile='crub-131119.zip'
+    crubadanfile =  os.getcwd() + '/seedling/data/crubadan/' + crubadanfile
+    assert os.path.exists(crubadanfile)
     
-    if not os.path.exists(filename):
-        print("Converting {} {}-gram data into a matrix ...".format(datasource, n))
-        matrix = csr_matrix_labelled(*datasource2matrix(datasource,n=n))
-        print("Pickling ...")
-        with open(filename,'wb') as fout:
-            pickle.dump(matrix, fout)
+    matrix = dok_matrix((sys.maxint,sys.maxint))  # We will resize the matrix at the end
+    codes = []
+    curr = -1
+    feats = []
+    feat_dict = {}
+    
+    if n == 'word':        subdir = 'words'
+    elif n in [1,2,3,4,5]: subdir = 'chars'
+    else: raise TypeError("expected 1, 2, 3, 4, 5, or 'word'")
+
+    with ZipFile(crubadanfile,'r') as inzipfile:
+        for infile in sorted(inzipfile.namelist()):
+            path, filename = os.path.split(infile)
+            if path != subdir: continue
+            if filename == '': continue
+            lang = filename.rpartition('.')[0]
+            if collapse:
+                lang = lang.partition('-')[0]
+                if codes == [] or lang != codes[-1]:
+                    codes.append(lang)
+                    curr += 1
+            else:
+                codes.append(lang)
+                curr += 1
+            
+            for line in inzipfile.open(infile):
+                feature, count = line.strip().split(' ')
+                if n == 'word' or (n in [1,2,3,4,5] and len(feature.decode('utf-8')) == n):
+                    try:
+                        index = feat_dict[feature]
+                    except KeyError:
+                        index = len(feats)
+                        feats.append(feature)
+                        feat_dict[feature] = index
+                    matrix[curr, index] += float(count)
+    
+    matrix.resize((len(codes), len(feats)))
+
+    return csr_matrix_labelled(matrix, codes, feats)
+
+def get_raw_seedling(datasource, n):
+    """
+    Return features (n-grams or words) for seedling data.
+    Language codes are not converted into ISO.
+    Allow feature 'word' and 1 to 5 (for character grams).
+    """
+    matrix_dict = defaultdict(Counter)
+    all_features = set()
+    all_labels = set()
+    # Access SeedLing corpus and extract Ngrams. 
+    for lang, sent in globals()[datasource].sents():
+        features = sent2ngrams(sent, n=n)
+        matrix_dict[lang].update(features)
+        all_labels.add(lang)
+        all_features.update(features)
+    all_features = sorted(all_features)
+    all_labels = sorted(all_labels)
+    # The following line is not optimal, since we create a dense array, but this works for the smaller datasources
+    matrix = csr_matrix(np.array([[matrix_dict[label][feat] \
+                                       for feat in all_features] \
+                                       for label in all_labels]))
+    
+    return csr_matrix_labelled(matrix, all_labels, all_features)
+
+def get_raw(datasource, n, collapse=False):
+    """
+    Chooses the appropriate function to call to get data
+    """
+    if datasource == 'crubadan':
+        return get_raw_crubadan(n=n, collapse=collapse)
     else:
-        print("Loading {} {}-gram data ...".format(datasource, n))
-        with open(filename,'rb') as fin:
+        return get_raw_seedling(datasource=datasource, n=n)
+
+
+def get_matrix(datasource='crubadan', n=3, option="raw", collapse=False):
+    """
+    Loads matrix (if pickled), or calculates it.
+    """
+    filename = "{}-{}-{}.pk.gz".format(datasource, n, option)
+    
+    if os.path.exists(filename):
+        print("Loading {} data ({}-gram, {}) ...".format(datasource, n, option))
+        with gzip.open(filename,'rb') as fin:
             matrix = pickle.load(fin)
+        
+    elif option == 'raw':
+        print("Transferring {} {}-gram data into a matrix ...".format(datasource, n))
+        matrix = get_raw(datasource=datasource, n=n, collapse=collapse)
+        print("Pickling ...")
+        with gzip.open(filename,'wb') as fout:
+            pickle.dump(matrix, fout)
+        
+    elif option == 'mi':
+        matrix = get_matrix(datasource=datasource, n=n, option='raw', collapse=collapse)
+        print("Calculating mutual information ...")
+        matrix.convert(mutual_information)
+        print("Pickling ...")
+        with gzip.open(filename,'wb') as fout:
+            pickle.dump(matrix, fout)
+        
+    elif option == 'pmi':
+        matrix = get_matrix(datasource=datasource, n=n, option='raw', collapse=collapse)
+        print("Calculating pointwise mutual information ...")
+        matrix.convert(pointwise_mi)
+        print("Pickling ...")
+        with gzip.open(filename,'wb') as fout:
+            pickle.dump(matrix, fout)
+        
+    else:
+        raise NotImplementedError("Available options: 'raw'")
+    
     return matrix
 
 
 if __name__ == "__main__":
-    crub_mx = get_matrix(datasource='crubadan', n=1)
-    print("Calculating mutual information ...")
-    crub_mx.convert(mutual_information)
-    for code, feat, value in crub_mx.iter_nonzero_label():
-        if value > 10**-3:
-            print(code, feat.decode('utf8'), value)
+    for n in [1,2,3,4,5,'word']:
+        for option in ['mi','pmi']:
+            get_matrix(datasource='crubadan', n=n, option=option)
