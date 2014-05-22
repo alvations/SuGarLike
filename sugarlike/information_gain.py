@@ -2,12 +2,13 @@
 
 from __future__ import division, print_function
 
-import os, gzip
+import os, gzip, warnings
 import cPickle as pickle
 from zipfile import ZipFile
 from itertools import chain
 from collections import Counter
-from math import log
+from operator import itemgetter
+from math import log, sqrt
 
 from seedling import udhr, odin, omniglot #called using globals()
 
@@ -58,13 +59,19 @@ class matrix_dict(dict):
         for feat_set in self.values():
             for feat in feat_set:
                 feat_set[feat] *= norm
+        return self
     
-    def normalise_rows(self):
-        """ Each row will sum to 1 """
-        for feat_set in self.values():
-            norm = 1/sum(feat_set.values())
+    def normalise_rowsq(self):
+        """ Each row's squares will sum to 1 """
+        for code, feat_set in self.items():
+            try:
+                norm = 1/sqrt(sum([x**2 for x in feat_set.values()]))
+            except ZeroDivisionError:
+                warnings.warn('{} has no features'.format(code), UserWarning)
+                del self[code]
             for feat in feat_set:
                 feat_set[feat] *= norm
+        return self
     
     def convert(self, function=pointwise_mi):
         """
@@ -83,6 +90,39 @@ class matrix_dict(dict):
             code_prob = sum(feat_set.values())
             for feat in feat_set:
                 feat_set[feat] = function(code_prob, feat_prob[feat], feat_set[feat])
+        return self
+    
+    def top_n(self, n):
+        """
+        Returns the top N features for each code, as a dictionary
+        """
+        top = {}
+        for code, feat_set in self.items():
+            tuples = sorted(feat_set.items(), reverse=True, key=itemgetter(1))
+            best = {feat for feat, _ in tuples[:n]}
+            top[code] = best
+        return top
+    
+    def top_n_combined(self, n):
+        """
+        Finds the top N features for each code, and combines them into one set
+        """
+        top = set()
+        for feat_set in self.values():
+            tuples = sorted(feat_set.items(), reverse=True, key=itemgetter(1))
+            best = {feat for feat, _ in tuples[:n]}
+            top |= best
+        return top
+    
+    def filter(self, new_set):
+        """
+        Removes all elements not in the given feature set
+        """
+        for old_set in self.values():
+            for feat in old_set.keys():
+                if feat not in new_set:
+                    del old_set[feat]
+        return self
 
 
 def word2ngrams(text, n=3):
@@ -154,7 +194,7 @@ def get_raw(datasource, n, collapse=False):
         return get_raw_seedling(datasource=datasource, n=n)
 
 
-def get_matrix(datasource='crubadan', n=3, option="raw", collapse=False):
+def get_matrix(datasource='crubadan', n=3, option="raw", collapse=False, verbose=True):
     """
     Loads matrix (if pickled), or calculates it.
     """
@@ -164,30 +204,30 @@ def get_matrix(datasource='crubadan', n=3, option="raw", collapse=False):
         os.mkdir(subdir)
     
     if os.path.exists(filename):
-        print("Loading {} data ({}-gram, {}) ...".format(datasource, n, option))
+        if verbose: print("Loading {} data ({}-gram, {}) ...".format(datasource, n, option))
         with gzip.open(filename,'rb') as fin:
             matrix = pickle.load(fin)
         
     elif option == 'raw':
-        print("Transferring {} {}-gram data into a matrix ...".format(datasource, n))
+        if verbose: print("Transferring {} {}-gram data into a matrix ...".format(datasource, n))
         matrix = get_raw(datasource=datasource, n=n, collapse=collapse)
-        print("Pickling ...")
+        if verbose: print("Pickling ...")
         with gzip.open(filename,'wb') as fout:
             pickle.dump(matrix, fout)
         
     elif option == 'mi':
         matrix = get_matrix(datasource=datasource, n=n, option='raw', collapse=collapse)
-        print("Calculating mutual information ...")
+        if verbose: print("Calculating mutual information ...")
         matrix.convert(mutual_information)
-        print("Pickling ...")
+        if verbose: print("Pickling ...")
         with gzip.open(filename,'wb') as fout:
             pickle.dump(matrix, fout)
         
     elif option == 'pmi':
         matrix = get_matrix(datasource=datasource, n=n, option='raw', collapse=collapse)
-        print("Calculating pointwise mutual information ...")
+        if verbose: print("Calculating pointwise mutual information ...")
         matrix.convert(pointwise_mi)
-        print("Pickling ...")
+        if verbose: print("Pickling ...")
         with gzip.open(filename,'wb') as fout:
             pickle.dump(matrix, fout)
         
@@ -197,7 +237,16 @@ def get_matrix(datasource='crubadan', n=3, option="raw", collapse=False):
     return matrix
 
 
-if __name__ == "__main__":
+def setup_crubadan():
     for n in [1,2,3,4,5,'word']:
         for option in ['mi','pmi']:
             get_matrix(datasource='crubadan', n=n, option=option)
+
+
+if __name__ == "__main__":
+    feats = get_matrix(n=1, option='mi').top_n_combined(2)
+    for x in sorted(feats):
+        print(x)
+    m = get_matrix(n=1, option='raw').filter(feats).normalise_rowsq()
+    for code, feats in sorted(m.items()):
+        print(code, feats)
