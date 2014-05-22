@@ -2,18 +2,14 @@
 
 from __future__ import division, print_function
 
-import os, sys, gzip
+import os, gzip
 import cPickle as pickle
 from zipfile import ZipFile
 from itertools import chain
-from collections import Counter, defaultdict
+from collections import Counter
 from math import log
 
-import numpy as np
-import scipy as sp
-from scipy.sparse import csr_matrix, dok_matrix
-
-from seedling import udhr
+from seedling import udhr, odin, omniglot #called using globals()
 
 
 def mutual_information(pi, pj, pij):
@@ -48,63 +44,27 @@ def pointwise_mi(pi, pj, pij):
     return log(pij) - log(pi) - log(pj)
 
 
-class csr_matrix_labelled(csr_matrix):
+class matrix_dict(dict):
     """
-    Usage: csr_matrix_labelled(matrix, codes, features)
-    
-    Note: do not rename this class!  The 'csr' prefix is actually required by scipy
+    A dictionary with some numerical methods
     """
-    def __init__(self, *args, **kwargs):
-        """ Initialises the matrix, then adds labels """
-        # *args and **kwargs are used so that scipy doesn't break
-        # Force datatype to be float:
-        kwargs.setdefault('dtype','float')
-        super(csr_matrix_labelled, self).__init__(args[0], **kwargs)
-        # __init__ is called twice, for some reason; the second time only with arg[0], so we need this if-clause
-        if len(args) > 1:
-            assert self.shape == (len(args[1]), len(args[2]))  # Check that the number of labels matches the data 
-            self.codes = args[1] #codes
-            self.feats = args[2] #features
-    
-    def iter_nonzero(self):
-        """ Iterates through non-zero cells in the matrix, with indices """
-        for row_num, col_num in zip(*self.nonzero()):
-            yield row_num, col_num, self[row_num, col_num]
-    
-    def iter_nonzero_label(self):
-        """ Iterates through non-zero cells in the matrix, with labels """
-        for row, col in zip(*self.nonzero()):
-            code = self.codes[row]
-            feat = self.feats[col]
-            yield code, feat, self[row, col]
-    
-    def iter_row(self):
-        """ Iterates through rows/codes """
-        for row in range(len(self.codes)):
-            yield code[row], self[row,:]
-    
-    def iter_col(self):
-        """ Iterates through columns/features (slow) """
-        for col in range(len(self.feats)):
-            yield feat[col], self[:,col]
-    
-    def from_label(self, code, feature):
-        """ Looks up a cell, from labels """
-        """ Note: not optimised """
-        row = self.codes.index(code)
-        col = self.feats.index(feature)
-        return self[row, col]
-    
     def normalise(self):
         """ Entire matrix will sum to 1 """
-        norm = 1/self.sum()
-        self *= norm
+        total = 0
+        for feat_set in self.values():
+            for value in feat_set.values():
+                total += value
+        norm = 1/total
+        for feat_set in self.values():
+            for feat in feat_set:
+                feat_set[feat] *= norm
     
     def normalise_rows(self):
         """ Each row will sum to 1 """
-        norm = [1/x for x in self.sum(1)]
-        for row, col in zip(*self.nonzero()):
-            self[row,col] *= norm[row]
+        for feat_set in self.values():
+            norm = 1/sum(feat_set.values())
+            for feat in feat_set:
+                feat_set[feat] *= norm
     
     def convert(self, function=pointwise_mi):
         """
@@ -114,10 +74,15 @@ class csr_matrix_labelled(csr_matrix):
          - pointwise_mi
         """
         self.normalise()
-        code_prob = self.sum(1)
-        feat_prob = self.sum(0)
-        for row, col, value in self.iter_nonzero():
-            self[row, col] = function(code_prob[row,0], feat_prob[0,col], value)
+        feat_prob = Counter()
+        for feat_set in self.values():
+            for feat in feat_set:
+                feat_prob[feat] += feat_set[feat]
+        
+        for feat_set in self.values():
+            code_prob = sum(feat_set.values())
+            for feat in feat_set:
+                feat_set[feat] = function(code_prob, feat_prob[feat], feat_set[feat])
 
 
 def word2ngrams(text, n=3):
@@ -141,11 +106,7 @@ def get_raw_crubadan(n, collapse=False):
     crubadanfile =  os.getcwd() + '/seedling/data/crubadan/' + crubadanfile
     assert os.path.exists(crubadanfile)
     
-    matrix = dok_matrix((sys.maxint,sys.maxint))  # We will resize the matrix at the end
-    codes = []
-    curr = -1
-    feats = []
-    feat_dict = {}
+    matrix = matrix_dict()
     
     if n == 'word':        subdir = 'words'
     elif n in [1,2,3,4,5]: subdir = 'chars'
@@ -156,30 +117,18 @@ def get_raw_crubadan(n, collapse=False):
             path, filename = os.path.split(infile)
             if path != subdir: continue
             if filename == '': continue
+            
             lang = filename.rpartition('.')[0]
             if collapse:
                 lang = lang.partition('-')[0]
-                if codes == [] or lang != codes[-1]:
-                    codes.append(lang)
-                    curr += 1
-            else:
-                codes.append(lang)
-                curr += 1
             
+            matrix.setdefault(lang, Counter())
             for line in inzipfile.open(infile):
                 feature, count = line.strip().split(' ')
                 if n == 'word' or (n in [1,2,3,4,5] and len(feature.decode('utf-8')) == n):
-                    try:
-                        index = feat_dict[feature]
-                    except KeyError:
-                        index = len(feats)
-                        feats.append(feature)
-                        feat_dict[feature] = index
-                    matrix[curr, index] += float(count)
+                    matrix[lang][feature] += int(count)
     
-    matrix.resize((len(codes), len(feats)))
-
-    return csr_matrix_labelled(matrix, codes, feats)
+    return matrix
 
 def get_raw_seedling(datasource, n):
     """
@@ -187,23 +136,13 @@ def get_raw_seedling(datasource, n):
     Language codes are not converted into ISO.
     Allow feature 'word' and 1 to 5 (for character grams).
     """
-    matrix_dict = defaultdict(Counter)
-    all_features = set()
-    all_labels = set()
-    # Access SeedLing corpus and extract Ngrams. 
+    matrix = matrix_dict()
+    
     for lang, sent in globals()[datasource].sents():
         features = sent2ngrams(sent, n=n)
-        matrix_dict[lang].update(features)
-        all_labels.add(lang)
-        all_features.update(features)
-    all_features = sorted(all_features)
-    all_labels = sorted(all_labels)
-    # The following line is not optimal, since we create a dense array, but this works for the smaller datasources
-    matrix = csr_matrix(np.array([[matrix_dict[label][feat] \
-                                       for feat in all_features] \
-                                       for label in all_labels]))
+        matrix.setdefault(lang, Counter()).update(features)
     
-    return csr_matrix_labelled(matrix, all_labels, all_features)
+    return matrix
 
 def get_raw(datasource, n, collapse=False):
     """
@@ -219,7 +158,7 @@ def get_matrix(datasource='crubadan', n=3, option="raw", collapse=False):
     """
     Loads matrix (if pickled), or calculates it.
     """
-    filename = "{}-{}-{}.pk.gz".format(datasource, n, option)
+    filename = "matrices/{}-{}-{}.pk.gz".format(datasource, n, option)
     
     if os.path.exists(filename):
         print("Loading {} data ({}-gram, {}) ...".format(datasource, n, option))
