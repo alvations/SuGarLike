@@ -10,7 +10,28 @@ from collections import Counter
 from operator import itemgetter
 from math import log, sqrt
 
-from seedling import udhr, odin, omniglot #called using globals()
+from seedling import udhr, odin, omniglot #called using globals() in get_raw_seedling
+
+
+def word2ngrams(text, n=3):
+    """ Convert word into character ngrams. """
+    return [text[i:i+n] for i in range(len(text)-n+1)]
+
+def sent2ngrams(text, n=3):
+    """ Convert sentence into character ngrams. """
+    if n == "word":
+        return text.split()
+    return list(chain(*[word2ngrams(i,n) for i in text.lower().split()]))
+
+def sent2feats(text):
+    """
+    Convert sentence into features, as a list of six Counters:
+    [word, 1-, 2-, 3-, 4-, 5-gram]
+    """
+    result = [Counter(text.split())]
+    for n in [1,2,3,4,5]:
+        result.append(Counter(sent2ngrams(text, n)))
+    return result
 
 
 def mutual_information(pi, pj, pij):
@@ -123,17 +144,70 @@ class matrix_dict(dict):
                 if feat not in new_set:
                     del old_set[feat]
         return self
+    
+    def split(self, bins):
+        """
+        Given a set of meta-codes to refer to groups of codes (in the form of a dictionary),
+        returns a collapsed matrix_dict for the meta-codes, and a set of smaller matrix_dicts for the groups
+        """
+        raise NotImplementedError
+        collapsed = matrix_dict()
+        sub_dicts = set()
+        for meta in bins:
+            collapsed[meta] = Counter()
+            small = matrix_dict()
+            sub_dicts.add(small)
+        return collapsed, sub_dicts
 
 
-def word2ngrams(text, n=3):
-    """ Convert word into character ngrams. """
-    return [text[i:i+n] for i in range(len(text)-n+1)]
+class classifier():
+    """
+    Our baseline classifier
+    """
+    def __init__(self, data):
+        """ data as a list of six dictionaries of Counters """
+        assert len(data) == 6
+        for i in range(5):
+            assert data[i].keys() == data[5].keys()
+        self.weights = data
+    
+    def __getitem__(self, key):
+        """
+        Allows dictionary/list-like access. Overloaded:
+         * if int or 'word', returns all data for that feature type
+         * if a language code, returns all data for that code
+        """
+        if key == 'word' or key == 'w':
+            key = 0
+        if type(key) == int:
+            return self.weights[key]
+        elif key in self.keys():
+            return [self.weights[i][key] for i in range(6)]
+        else:
+            raise KeyError(key)
+    
+    def keys(self):
+        return self[0].keys()
+    
+    def __len__(self):
+        return len(self.keys())
+    
+    def id_feat(self, features):
+        scores = {code:0 for code in self.keys()}
+        for i in range(6):
+            for code in self[i]:
+                for feat in features[i]:
+                    scores[code] += self[i][code][feat] * features[i][feat]
+        return sorted(scores.items(), reverse=True, key=itemgetter(1))
+    
+    def identify(self, sample_text):
+        return self.id_feat(sent2feats(sample_text))
 
-def sent2ngrams(text, n=3):
-    """ Convert sentence into character ngrams. """
-    if n == "word":
-        return text.split()
-    return list(chain(*[word2ngrams(i,n) for i in text.lower().split()]))
+class two_stage():
+    """
+    Our two-stage classifier
+    """
+    pass
 
 
 def get_raw_crubadan(n, collapse=False):
@@ -244,9 +318,19 @@ def setup_crubadan():
 
 
 if __name__ == "__main__":
-    feats = get_matrix(n=1, option='mi').top_n_combined(2)
+    data = []
+    for i in ['word',1,2,3,4,5]:
+        data.append(get_matrix(n=i).normalise_rowsq())
+    c = classifier(data)
+    for code, value in c.identify('guten tag')[:20]:
+        print(code, value)
+    '''
+    feats = get_matrix(n=1, option='mi').top_n_combined(5)
     for x in sorted(feats):
         print(x)
+    print(len(feats))
+    '''
+    """
     m = get_matrix(n=1, option='raw').filter(feats).normalise_rowsq()
     for code, feats in sorted(m.items()):
-        print(code, feats)
+        print(code, feats)"""
