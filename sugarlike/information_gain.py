@@ -198,13 +198,50 @@ class MultiDict(tuple):
         for i in range(5):
             assert self[i].keys() == self[5].keys()
     
+    def __getitem__(self, key):
+        """ Overloaded """
+        if type(key) == int:
+            return super(MultiDict, self).__getitem__(key)
+        elif type(key) == str:
+            return tuple(self[i][key] for i in range(6))
+        else:
+            raise TypeError(key)
+    
     def split(self, bins):
         part_split = [self[i].split(bins) for i in range(6)]
         collapsed = MultiDict(part_split[i][0] for i in range(6))
         sub_dicts = dict()
         for code in bins:
             sub_dicts[code] = MultiDict(part_split[i][1][code] for i in range(6))
-        return collapsed, sub_dicts
+        return SplitDict(collapsed, sub_dicts)
+    
+    def keys(self):
+        return self[0].keys()
+    
+    def normalise_rowsq(self):
+        for i in range(6):
+            self[i].normalise_rowsq()
+
+class SplitDict():
+    def __init__(self, superdata, subdata):
+        assert isinstance(superdata, MultiDict)
+        self.super = superdata
+        self.sub = subdata
+        assert self.super.keys() == self.sub.keys()
+    
+    def keys(self):
+        return self.super.keys()
+    
+    def __getitem__(self, meta):
+        if not meta:
+            return self.super
+        else:
+            return self.sub[meta]
+    
+    def normalise_rowsq(self):
+        self.super.normalise_rowsq()
+        for meta in self.keys():
+            self[meta].normalise_rowsq()
 
 
 class Classifier():
@@ -261,19 +298,16 @@ class TwoStage():
     """
     Our two-stage classifier
     """
-    def __init__(self, superdata, subdata=None):
+    def __init__(self, data):
         """
         Data as a MultiDict (or equivalent),
         and a dictionary from group labels to multi_dicts
         """
-        if not subdata:  # Allow input as a 2-tuple, instead of separate arguments 
-            subdata = superdata[1]
-            superdata = superdata[0]
-        assert superdata[0].keys() == subdata.keys()
-        self.first = Classifier(superdata)
+        assert isinstance(data, SplitDict)
+        self.first = Classifier(data.super)
         self.second = dict()
-        for code in subdata:
-            self.second[code] = Classifier(subdata[code])
+        for meta in data.keys():
+            self.second[meta] = Classifier(data[meta])
     
     def id_feat(self, features):
         group  = self.first.id_feat(features)
@@ -304,7 +338,7 @@ def get_raw_crubadan(n, collapse=False):
     
     if n == 'word':        subdir = 'words'
     elif n in [1,2,3,4,5]: subdir = 'chars'
-    else: raise TypeError("expected 1, 2, 3, 4, 5, or 'word'")
+    else: raise TypeError("expected 1, 2, 3, 4, 5, or 'word', got: {}".format(n))
 
     with ZipFile(crubadanfile,'r') as inzipfile:
         for infile in sorted(inzipfile.namelist()):
@@ -344,8 +378,10 @@ def get_raw(datasource, n, collapse=False):
     """
     if datasource == 'crubadan':
         return get_raw_crubadan(n=n, collapse=collapse)
-    else:
+    elif datasource in SEEDLING:
         return get_raw_seedling(datasource=datasource, n=n)
+    else:
+        raise KeyError("expected datasource name, got: {}".format(datasource))
 
 
 def get_matrix(datasource='crubadan', n=3, option="raw", collapse=False, verbose=True):
@@ -387,7 +423,7 @@ def get_matrix(datasource='crubadan', n=3, option="raw", collapse=False, verbose
             pickle.dump(matrix, fout)
         
     else:
-        raise NotImplementedError("Available options: 'raw'")
+        raise KeyError("expected 'raw', 'mi', or 'pmi', got: {}".format(option))
     
     return matrix
 
@@ -414,10 +450,7 @@ if __name__ == "__main__":
     # Two-stage classifier
     bins = {'germanic':{'en','de'}, 'romance':{'fr','it'}}
     m = get_multi().split(bins)
-    for i in range(6):
-        m[0][i].normalise_rowsq()
-        for meta in m[1]:
-            m[1][meta][i].normalise_rowsq()
+    m.normalise_rowsq()
     c = TwoStage(m)
     print(c.identify_top("hello world"))
     print(c.identify_top("guten tag"))
