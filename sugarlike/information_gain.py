@@ -10,7 +10,8 @@ from collections import Counter
 from operator import itemgetter
 from math import log, sqrt
 
-from seedling import udhr, odin, omniglot #called using globals() in get_raw_seedling
+from seedling import udhr, odin, omniglot
+SEEDLING = {'udhr':udhr, 'odin':odin, 'omniglot':omniglot}
 
 
 def word2ngrams(text, n=3):
@@ -66,10 +67,15 @@ def pointwise_mi(pi, pj, pij):
     return log(pij) - log(pi) - log(pj)
 
 
-class matrix_dict(dict):
+class MatrixDict(dict):
     """
     A dictionary with some numerical methods
     """
+    def iter_all(self):
+        for code, feat_set in self.iteritems():
+            for feat, value in feat_set.iteritems():
+                yield code, feat, value
+    
     def normalise(self):
         """ Entire matrix will sum to 1 """
         total = 0
@@ -103,11 +109,11 @@ class matrix_dict(dict):
         """
         self.normalise()
         feat_prob = Counter()
-        for feat_set in self.values():
+        for feat_set in self.itervalues():
             for feat in feat_set:
                 feat_prob[feat] += feat_set[feat]
         
-        for feat_set in self.values():
+        for feat_set in self.itervalues():
             code_prob = sum(feat_set.values())
             for feat in feat_set:
                 feat_set[feat] = function(code_prob, feat_prob[feat], feat_set[feat])
@@ -118,7 +124,7 @@ class matrix_dict(dict):
         Returns the top N features for each code, as a dictionary
         """
         top = {}
-        for code, feat_set in self.items():
+        for code, feat_set in self.iteritems():
             tuples = sorted(feat_set.items(), reverse=True, key=itemgetter(1))
             best = {feat for feat, _ in tuples[:n]}
             top[code] = best
@@ -129,47 +135,91 @@ class matrix_dict(dict):
         Finds the top N features for each code, and combines them into one set
         """
         top = set()
-        for feat_set in self.values():
+        for feat_set in self.itervalues():
             tuples = sorted(feat_set.items(), reverse=True, key=itemgetter(1))
             best = {feat for feat, _ in tuples[:n]}
             top |= best
+        return top
+    
+    def top_thresh(self, threshold):
+        """
+        Returns all features above a given threshold, for each code, as a dictionary
+        """
+        top = {}
+        for code, feat, value in self.iter_all():
+            if value > threshold:
+                top.setdefault(code, set()).add(feat)
+        return top
+     
+    def top_thresh_combined(self, threshold):
+        """
+        Returns all features above a given threshold
+        """
+        top = set()
+        for _, feat, value in self.iter_all():
+            if value > threshold:
+                top.add(feat)
         return top
     
     def filter(self, new_set):
         """
         Removes all elements not in the given feature set
         """
-        for old_set in self.values():
-            for feat in old_set.keys():
+        for old_set in self.itervalues():
+            for feat in old_set.iterkeys():
                 if feat not in new_set:
                     del old_set[feat]
         return self
     
     def split(self, bins):
         """
-        Given a set of meta-codes to refer to groups of codes (in the form of a dictionary),
-        returns a collapsed matrix_dict for the meta-codes, and a set of smaller matrix_dicts for the groups
+        Given meta-codes to refer to sets of codes (as a dictionary),
+        returns a collapsed MatrixDict for the meta-codes, and
+        a dictionary from meta-codes to within-group MatrixDicts
         """
-        raise NotImplementedError
-        collapsed = matrix_dict()
-        sub_dicts = set()
-        for meta in bins:
+        collapsed = MatrixDict()
+        sub_dicts = dict()
+        for meta, group in bins.iteritems():
             collapsed[meta] = Counter()
-            small = matrix_dict()
-            sub_dicts.add(small)
+            small = MatrixDict()
+            sub_dicts[meta] = small
+            for code in group:
+                collapsed[meta].update(self[code])
+                small[code] = self[code]
+        return collapsed, sub_dicts
+
+class MultiDict(tuple):
+    """ 6 matrix_dicts """
+    def __init__(self, iterable):
+        super(MultiDict, self).__init__(iterable)
+        assert len(self) == 6
+        for i in range(6):
+            assert isinstance(self[i], MatrixDict)
+        for i in range(5):
+            assert self[i].keys() == self[5].keys()
+    
+    def split(self, bins):
+        part_split = [self[i].split(bins) for i in range(6)]
+        collapsed = MultiDict(part_split[i][0] for i in range(6))
+        sub_dicts = dict()
+        for code in bins:
+            sub_dicts[code] = MultiDict(part_split[i][1][code] for i in range(6))
         return collapsed, sub_dicts
 
 
-class classifier():
+class Classifier():
     """
-    Our baseline classifier
+    Our one-stage classifier
     """
     def __init__(self, data):
-        """ data as a list of six dictionaries of Counters """
+        """ data as a MultiDict or equivalent """
         assert len(data) == 6
         for i in range(5):
             assert data[i].keys() == data[5].keys()
-        self.weights = data
+        if isinstance(data, tuple):
+            self.weights = data
+        else:
+            self.weights = tuple(data)
     
     def __getitem__(self, key):
         """
@@ -201,13 +251,43 @@ class classifier():
         return sorted(scores.items(), reverse=True, key=itemgetter(1))
     
     def identify(self, sample_text):
-        return self.id_feat(sent2feats(sample_text))
+        features = sent2feats(sample_text)
+        return self.id_feat(features)
+    
+    def identify_top(self, sample_text):
+        return max(self.identify(sample_text), key=itemgetter(1))[0]
 
-class two_stage():
+class TwoStage():
     """
     Our two-stage classifier
     """
-    pass
+    def __init__(self, superdata, subdata=None):
+        """
+        Data as a MultiDict (or equivalent),
+        and a dictionary from group labels to multi_dicts
+        """
+        if not subdata:  # Allow input as a 2-tuple, instead of separate arguments 
+            subdata = superdata[1]
+            superdata = superdata[0]
+        assert superdata[0].keys() == subdata.keys()
+        self.first = Classifier(superdata)
+        self.second = dict()
+        for code in subdata:
+            self.second[code] = Classifier(subdata[code])
+    
+    def id_feat(self, features):
+        group  = self.first.id_feat(features)
+        best = max(group, key=itemgetter(1))[0]
+        variety = self.second[best].id_feat(features)
+        return group, best, variety
+    
+    def identify(self, sample_text):
+        features = sent2feats(sample_text)
+        return self.id_feat(features)
+    
+    def identify_top(self, sample_text):
+        _, best, variety = self.identify(sample_text)
+        return best, max(variety, key=itemgetter(1))[0]
 
 
 def get_raw_crubadan(n, collapse=False):
@@ -220,7 +300,7 @@ def get_raw_crubadan(n, collapse=False):
     crubadanfile =  os.getcwd() + '/seedling/data/crubadan/' + crubadanfile
     assert os.path.exists(crubadanfile)
     
-    matrix = matrix_dict()
+    matrix = MatrixDict()
     
     if n == 'word':        subdir = 'words'
     elif n in [1,2,3,4,5]: subdir = 'chars'
@@ -250,9 +330,9 @@ def get_raw_seedling(datasource, n):
     Language codes are not converted into ISO.
     Allow feature 'word' and 1 to 5 (for character grams).
     """
-    matrix = matrix_dict()
+    matrix = MatrixDict()
     
-    for lang, sent in globals()[datasource].sents():
+    for lang, sent in SEEDLING[datasource].sents():
         features = sent2ngrams(sent, n=n)
         matrix.setdefault(lang, Counter()).update(features)
     
@@ -272,6 +352,7 @@ def get_matrix(datasource='crubadan', n=3, option="raw", collapse=False, verbose
     """
     Loads matrix (if pickled), or calculates it.
     """
+    if n == 0: n = 'word'  # To allow easier access to several matrices
     subdir = "matrices"
     filename = "{}/{}-{}-{}.pk.gz".format(subdir, datasource, n, option)
     if not os.path.exists(subdir):
@@ -310,27 +391,55 @@ def get_matrix(datasource='crubadan', n=3, option="raw", collapse=False, verbose
     
     return matrix
 
+def get_multi(datasource='crubadan', option="raw", collapse=False, verbose=True):
+    """
+    Loads all matrices for all feature types
+    """
+    return MultiDict(get_matrix(n=i,
+        datasource=datasource, option=option, collapse=collapse, verbose=verbose)
+        for i in range(6))
+
 
 def setup_crubadan():
+    """
+    Sets up matrices of raw features, mutual information, and pointwise mutual information,
+    for all feature types, using Crubadan
+    """
     for n in [1,2,3,4,5,'word']:
         for option in ['mi','pmi']:
             get_matrix(datasource='crubadan', n=n, option=option)
 
 
 if __name__ == "__main__":
+    # Two-stage classifier
+    bins = {'germanic':{'en','de'}, 'romance':{'fr','it'}}
+    m = get_multi().split(bins)
+    for i in range(6):
+        m[0][i].normalise_rowsq()
+        for meta in m[1]:
+            m[1][meta][i].normalise_rowsq()
+    c = TwoStage(m)
+    print(c.identify_top("hello world"))
+    print(c.identify_top("guten tag"))
+    print(c.identify_top("bonjour"))
+    print(c.identify_top("buonjiorno"))
+    """
+    # One-stage classifier:
     data = []
     for i in ['word',1,2,3,4,5]:
         data.append(get_matrix(n=i).normalise_rowsq())
-    c = classifier(data)
+    c = Classifier(data)
     for code, value in c.identify('guten tag')[:20]:
         print(code, value)
-    '''
-    feats = get_matrix(n=1, option='mi').top_n_combined(5)
-    for x in sorted(feats):
-        print(x)
-    print(len(feats))
-    '''
     """
-    m = get_matrix(n=1, option='raw').filter(feats).normalise_rowsq()
-    for code, feats in sorted(m.items()):
-        print(code, feats)"""
+    """
+    # Feature selection with one-stage classifier:
+    data = []
+    n_feats = [1000,10,100,1000,1000,1000]
+    for i in range(6):
+        feats = get_matrix(n=i, option='mi').top_n_combined(n_feats[i])
+        data.append(get_matrix(n=i).filter(feats).normalise_rowsq())
+    c = Classifier(data)
+    for code, value in c.identify('guten tag')[:20]:
+        print(code, value)
+    """
