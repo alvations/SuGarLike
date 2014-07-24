@@ -1868,4 +1868,4 @@ zty	Yatee Zapotec	-	zty	Mexico	2	315152	1860388	ZTY	-	-	-	zpu	en es	no	-	Fri Dec
 zu	Zulu	isiZulu	zul	South Africa	292	651658	5723788	ZUU	zu	zu	zuu	xh nd nr ss xog bem	en	yes	Friedel Wolff, Dwayne Bailey	Sat Feb 2 10:32:24 CST 2013	ISIZULU, ZUNDA	Niger-Congo, Atlantic-Congo, Volta-Congo, Benue-Congo, Bantoid, Southern, Narrow Bantu, Central, S, Nguni (S.40).
 zun	Zuni	Shiwi'ma	zun	USA	2	19280	160996	ZUN	-	-	-	ifb ifk	en	no	-	Sat Jan 26 18:49:59 CST 2013	ZUÑI	Language Isolate.
 zyj	Youjiang Zhuang	-	zyj	China	6	853	5544	-	-	-	-	en	en	no	-	Fri Oct 18 00:05:31 CDT 2013	-	Tai-Kadai, Kam-Tai, Tai, Northern
-zza	Zaza	-	zza	Turkey	93	1126852	6643343	-	-	-	-	kmr ote
+zza	Zaza	-	zza	Turkey	93	1126852	6643343	-	-	-	-	kmr ote	en tr	no	-	Thu Jan 24 14:14:46 CST 2013	ZAZAKI	Indo-European, Indo-Iranian, Iranian, Western, Northwestern, Zaza-Gorani.

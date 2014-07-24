@@ -1,0 +1,5 @@
+Iranian (12): ps, ku-Arab, glk, ckb, lki, bqi, fa, prs, bal, pes, sdh, mzn
+Indo-Aryan (5): skr, pnb, lah, ur, sd
+Turkic (3): azb-Arab, az-Arab, ug-Arab
+Semitic (3): arb, ar, arz
+Austronesian (1): ms-Arab

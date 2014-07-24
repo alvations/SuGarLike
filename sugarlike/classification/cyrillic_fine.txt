@@ -1,0 +1,10 @@
+Turkic (22): uzn, sah, gag-Cyrl, kaa-Cyrl, alt, cv, tt, kum, tk-Cyrl, cjs, ba, nog, az-Cyrl, tyv, ug, uz, kk, kjh, atv, azj-Cyrl, krc, ky
+Uralic (13): koi, kca, kpv, mdf, chm, myv, kv, mrj, sjd, udm, enf, mhr, yrk
+Slavic and Romanian (12): be, bg, ru, sr, bs-Cyrl, mk, rue, be-tarask, uk, sr-ME, hbs-Cyrl, cu, mo
+Tungusic (6): evn, neg, gld, eve, ude, ulc
+Mongolic (5): mn, xal, bua, khk, bxr
+Northeast Caucasian (8): tab, agx, lbe, dar, av, lez, udi, rut, inh, ce
+Indo-Iranian (7): os-x-dig, pi-Cyrl, yai, rom-Cyrl, rmn-BG, tg, os
+Northwest Caucasian (4): ccn-x-circassian, ab, kbd, ady
+"Paleosiberian" (8): ckt, alr, kpy, itl, yux, ykg, ess-Cyrl, niv
+Sino-Tibetan (1): dng

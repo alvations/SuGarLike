@@ -1,0 +1,5 @@
+Altaic (33): uzn, bxr, khk, gag-Cyrl, kaa-Cyrl, alt, cv, neg, tt, kum, xal, tk-Cyrl, cjs, sah, ba, nog, az-Cyrl, ude, tyv, bua, ug, evn, uz, kk, kjh, mn, gld, eve, atv, azj-Cyrl, krc, ky, ulc
+Indo-European (20): be, sr-ME, bg, ru, os, mo, bs-Cyrl, mk, pi-Cyrl, sr, yai, be-tarask, uk, rmn-BG, tg, rue, hbs-Cyrl, os-x-dig, cu, rom-Cyrl
+North Caucasian (14): ab, tab, ccn-x-circassian, av, ce, ady, inh, kbd, dar, agx, lbe, lez, udi, rut
+Uralic (13): koi, yrk, kca, kpv, enf, mdf, chm, myv, kv, mrj, mhr, sjd, udm
+Other (9): ckt, itl, alr, kpy, yux, ykg, ess-Cyrl, niv, dng

@@ -1,0 +1,44 @@
+== Turkic (22) ==
+Western (8): Bashkir, Kazakh, Tatar, Nogai, Kumyk, Karakalpak, Karachay-Balkar, Kirghiz
+Northern (6): Yakut, Khakas, Northern Altai, Shor, Southern Altai, Tuva
+Southern (4): North Azerbaijani, Turkmen, Gagauz, Azerbaijani
+Eastern (3): Uyghur, Northern Uzbek, Uzbek
+Bolgar (1): Chuvash
+
+== Tungusic (6) ==
+Southern (3): Ulch, Nanai, Udihe
+Northern (3): Negidal, Even, Evenki
+
+== Mongolic (5) ==
+Eastern (5): Mongolian, Kalmyk-Oirat, Buriat, Halh Mongolian, Russia Buriat
+
+== Slavic (and Romanian) (13) ==
+Slavic (12): Belarusan, Bulgarian, Russian, Serbian, Bosnian, Macedonian, Rusyn, Belarusan (Taraškievica), Ukrainian, Montenegrin, Serbo-Croatian, Old Church Slavonic
+Romance (1): Moldavian
+
+== Indo-Iranian (7) ==
+Iranian (4) : Digor, Yagnobi, Tajiki, Osetin
+Indo-Aryan (3) : Pali, Romany, Bulgarian Romany
+
+== Northeast Caucasian (10) ==
+Northeast (8): Tabassaran, Aghul, Lak, Dargwa, Avar, Lezgi, Udi, Rutul
+North Central (1): Ingush
+East (1): Chechen
+
+== Northwest Caucasian (4) ==
+Northwest (4): Circassian languages, Abkhaz, Kabardian, Adyghe
+
+== Uralic (13) ==
+Finno-Ugric (10): Komi-Permyak, Khanty, Komi-Zyrian, Moksha, Mari, Erzya, Komi, Hill Mari, Kildin Sami, Udmurt
+Samoyed (1): Forest Enets
+Mari (1): Meadow Mari
+Samoyedic (1): Nenets
+
+== "Paleosiberian" (8) ==
+Chukotko-Kamchatkan (4): Chukchi, Alutor, Koryak, Itelmen
+Yukaghir (2): Southern Yukaghir, Northern Yukaghir
+Eskimo-Aleut (1): Central Siberian Yupik
+Language Isolate (1): Gilyak
+
+== Sino-Tibetan (1) ==
+Chinese (1): Dungan

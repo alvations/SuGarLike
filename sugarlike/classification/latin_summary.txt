@@ -1,0 +1,207 @@
+Narrow Bantu (108): pkb, ttj, vmw, tsc, lg, nyk, ln, wmw, ts, tn, hay, ksf, bng, kck, rnd, kxx, kki, kkj, lch, mho, bas, dig, diu, guz, old, kde, ny-x-nya, btb, zu, nba, seh, lup, rw, kmb, lua, gog, suk, pem, lue, umb, rn, lun, ozm, tum, mer, puu, vun, ndc, bnt-x-chaga, ngl, tll, xh, vif, nso, kwn, sop, toi, swh, swk, koo, mhw, dua, swc, swb, lol, dug, yao, lu, chw, loz, yaf, heh, hz, xog, bum, jmc, bem, kj, ve, nnb, rim, cjk, nyy, ewo, nd, ng, ny, nyn, nyo, nym, nr, nyf, kqn, nyd, lam, nim, lag, kam, bss, kg, ss, kng, ki, sw, st, thk, sn, luy
+
+Benue-Congo non-Bantu (35): bav, bbj, bfd, byv, lns, yam, bax, mnf, kcc, ann, abn, efi, ogo, kez, gkn, ibb, izr, mda, jbu, kub, bin, urh, iso, igl, its, yo, mcu, mzk, ken, anv, ig, tik, tiv, lem, nhu
+
+Mande (22): mnk, dmn-x-bamana, bib, bqc, gkp, neb, yal, sus, dyu, bwq, daf, bm, men, kao, snk, sbd, moa, man, kno, knk, emk, kpe
+
+Other Niger-Congo (88): kib, dts, fuv, srr, lia, csk, wo, cwt, fuf, dyo, fuc, ff, tem, lnu, dga, mfq, myk, dag, wwa, nnw, kbp, xrb, lee, kma, xon-x-liko, kus, vag, bba, hag, spp, mua, xon-x-likp, xon, sig, gur-x-nink, muh, sil, tbz, bim, bwu, maw, mos, dgi, mfq-x-lok, mzw, fal, biv, mzm, bud, las, zne, ntr, gba, cme, znd, gur, ndz, nfr, soy, sld, dop, gux, tpm, xsm, nzi, bci, lef, acd, ee, tw, ak, ncu, fat, nko, gjn, ade, guw, ada, fon, adj, cko, gaa, ajg, gbo, grb, blh, ktj, wob
+  Kordofanian (1): kib
+  Dogon (1): dts
+  Atlantic (11): fuv, srr, lia, csk, wo, cwt, fuf, dyo, fuc, ff, tem
+  Volta-Congo, North (51): lnu, dga, mfq, myk, dag, wwa, nnw, kbp, xrb, lee, kma, xon-x-liko, kus, vag, bba, hag, spp, mua, xon-x-likp, xon, sig, gur-x-nink, muh, sil, tbz, bim, bwu, maw, mos, dgi, mfq-x-lok, mzw, fal, biv, mzm, bud, las, zne, ntr, gba, cme, znd, gur, ndz, nfr, soy, sld, dop, gux, tpm, xsm
+  Volta-Congo, Kwa (19): nzi, bci, lef, acd, ee, tw, ak, ncu, fat, nko, gjn, ade, guw, ada, fon, adj, cko, gaa, ajg
+  Volta-Congo, Kru (5): gbo, grb, blh, ktj, wob
+
+===
+
+Romance (80): ro, lld-x-gar, co, pt-GW, lij, fr-CA, ca, mxi, es-EC, fr, an, gsc, prv, vec, es-GT, es-CR, es-ES, rup, es, ist, lld-x-fas, es-HN, es-NI, es-UY, es-PE, ca-valencia, ext, dlm, sdc, es-BO, nap, frp, lnc, auv, rm, es-SV, pcd, mwl, fax, lms, wa, ast, lad, pms, es-VE, pt-MZ, it, pt-ST, fr-FR, lmo, pt-TL, lld-x-bad, pt-PT, pt-AO, scn, src, lld, fur, fr-x-nor, es-PR, pt, es-CU, eml, la, oc, es-PY, es-MX, gl, es-CL, es-CO, es-x-cant, scn-x-tara, es-PA, es-AR, sc, pt-BR, fr-x-jer, rgn, pt-CV; drc
+
+Germanic (74): frr-x-fer, en-IN, ang, af, vmf, en-IE, is, en-TT, sco, sv, en, swg, sco-x-scotland, yi-Latn, wym, en-CA, dlc, frr, lb, goh, nn, en-AU, en-KE, nb, de-CH, li, nl-NL, en-JM, fy, de-AT, got, ksh, gos, stq, en-GB, en-US, nrn, en-HK, en-SG, en-BW, de, pfl, en-NG, da, en-NZ, sdz, jut, nl, vls, nl-BE, nds-NL, fo, frr-x-moo, bar, gsw, stl, no, en-PH, drt, cim, zea, de-DE, sco-ulster, en-ZA, sli, act, pdt, nds, pdc; osx, non, yol, dum, enm
+
+Indo-Iranian (26): rom, rmy, rmn, rmo, gom, pi-Latn, bn-Latn, bgp-Latn, kmr, ne-Latn, hi-Latn, kok-Latn, pst-Latn, wbl-Latn, kiu, pes-Latn, hif, ur-Latn, fa-Latn, zza, bal-Latn, tly, hns, ku, bh-Latn, diq
+
+Balto-Slavic (25): hsb, mk-Latn, szl, hr, ru-Latn, sl, be-Latn, uk-Latn, bg-Latn, csb, sk, sr-Latn, pl, bs, cs, sr-Latn-ME, dsb, wen, hbs, prg, lvs, sgs, lv, lt, ltg
+
+Other Indo-European (21): ga-Latg, gv, br, kw-uccor, br-x-falhuneg, ga-x-slais, kw-x-mod, cy, gd, kw, ga, br-x-unified, kw-kkcor, aae, aat, sq, als, aln, el-Latn-x-chat, el-Latn, hy-Latn
+  Celtic (13): ga-Latg, gv, br, kw-uccor, br-x-falhuneg, ga-x-slais, kw-x-mod, cy, gd, kw, ga, br-x-unified, kw-kkcor
+  Albanian (5): aae, aat, sq, als, aln
+  Greek (2): el-Latn-x-chat, el-Latn
+  Armenian (1): hy-Latn
+
+===
+
+Oceanic (106): wuv, kbm, rtm, tkl, uvl, mna, alu, nwi, tte, ptp, ty, aui, bnp, adz, mwc, ksd, jae, yml, haw, dad, mox, tbo, tbc, lcm, mpx, emi, xsi, rro, aai, gfk, hla, nen, bdd, kud, mee, mmx, rug, mek, meu, tuc-x-tuam, mmo, leu, sbe, wed, mva, bgt, aty, tgp, sgz, mbh, nsn, kwf, pon, wed-x-topura, viv, tgg, nss, to, chk, swp, kos, gil, sps, bmk, buk, tvl, stn, mi, mh, fud, erg, mlv, mlu, aia, ane, khz, wls, nnd, myw, rai, lbb, rar, rap, lid, kqw, dww, nak, tuc-x-oov, hot, kqf, dhv, gri, snc, ubr, mzz, fj, niu, bch, tpa, pwg, dob, ssg, sm, na, tpz, bzh
+
+Western Malayo-Polynesian (105): itv, mnb, ttg, mwv, jax, hil, tl, sml, bno, jvn, bbc-Latn, bnc, xmv, ceb, mog, ifu, zlm, ify, bps, bpr, min, ifb, ban, ljp, ifk, bkd, bts, mak-Latn, btx, btz, btd, pmf, btm, ptu, iry, pez, blz, blw, vkt, rej-Latn, abx, gor, plt, jv, tsg, mmn, kzf, kzi, sbl, mvp, atd, dtp, ace, ilo, krj, akl, ch, mbi, mbd, bjn, mbb, yap, mbt, sgb, mbs, dun, due, msm, msk, war, jv-x-bms, gay, pqw-x-penan, phi-x-blaan, sda, buc, bug, mg, ibl, iba, slm, ms, zsm, mta, kyk, sxn, ivv, sas, id, bik, pau, cjm, pag, pam, nij, dgc, nia, bku, npy, mad, agn, kne, su, hnn, cps
+
+Other Austronesian (9): ami, pwn, ckv, uun, tet, twu, skg, bsb, fil
+  Formosan, Paiwanic (4): ami, pwn, ckv, uun
+  Malayo-Polynesian, Central (2): tet, twu
+  Malayo-Polynesian, Greater Barito (1): skg
+  Malayo-Polynesian, North Borneo (1): bsb
+  Malayo-Polynesian, Philippine (1): fil
+==
+
+Trans-New Guinea (133): tim, gdr, tqo, kgf, opm, omw-x-veq, kmh, knv-x-ara, gdn, ksr, byr, imo, wer, tbg, auy, omw-x-aat, ssx, amn, big, dah, mhl, mpt, fai, mps, mpp, nou, nvm, faa, nop, kkc, kpr, kpw, kpx, wsk, xla, aey, kpf, knv-x-fly, ubu-x-nopenge, rwo-x-rawa, kmg, bmu, for, ssd, gvf, mux, kup, kmu, aby, kue, ddg, aom, med, wrs, rwo-x-karo, kmh-x-mini, omw, kze, kew, aso, etr, yut, srl, kjs, boj, akh, tlf, bon, yli, apz, snp, ipi, ppo, soq, wiu, bjr, gaw, waj, usa, yrb, bbb, ubu-x-andale, bbr, iar, wnc, hmt, bmh, zia, hui, gam, gah, nca, mcq, yby, mlh, bef, aak, sll, mlp, mti, ded, ubu-x-kala, bhl, kyc, kyg, ino, spl, yuw, yon, naf, okv, kqc, enq, snp-x-lambau, cjv, byr-x-waga, ubu, nii, tbg-x-arau, awx, iou, nif, sue, awi, dgz, awb, agm, bco, ghs, agg, agd, wnu, knv
+  Main Section, Central and Western, East New Guinea Highlands (47): ubu, kyc, ipi, kyg, ubu-x-nopenge, wiu, ino, bjr, omw-x-veq, waj, for, gvf, mux, imo, kmh, enq, kmu, ubu-x-andale, auy, kue, cjv, kze, med, nii, omw-x-aat, ssx, snp-x-lambau, hui, gam, kmh-x-mini, omw, snp, gah, kew, aso, awb, tbg, yby, usa, kpw, agd, bef, sll, kjs, akh, tbg-x-arau, ubu-x-kala
+  Main Section, Central and Western, Huon-Finisterre (22): bmu, spl, rwo-x-rawa, kmg, naf, ksr, tim, wnc, awx, dah, iou, nif, rwo-x-karo, mpp, kgf, nca, nop, mlh, yut, yuw, kpf, ded
+  Main Section, Eastern, Central and Southeastern (14): soq, kpx, big, aom, bbb, kup, kqc, wer, mti, mcq, dgz, aby, yrb, gdn
+  Main Section, Central and Western, Central and South New Guinea-Kutubuan (11): etr, yon, bco, bhl, xla, mpt, fai, tlf, awi, faa, kkc
+  Madang-Adelbert Range (10): mhl, aey, bmh, mlp, gaw, boj, wsk, wnu, ssd, bbr
+  Main Section, Eastern, Binanderean (6): kpr, okv, ghs, sue, zia, nou
+  Main Section, Central and Western, Angan (6): apz, agm, hmt, byr, aak, byr-x-waga
+  Trans-Fly-Bulaka River (5): knv, knv-x-fly, gdr, knv-x-ara, bon
+  Teberan-Pawaian (2): ppo, mps
+  Eleman (2): tqo, iar
+  Main Section, Central and Western, Dani-Kwerba (2): srl, yli
+  Northern (2): wrs, amn
+  Southeast Papuan (1): nvm
+  Senagi (1): agg
+  South Bird's Head-Timor-Alor-Pantar (1): ddg
+  Oksapmin (1): opm
+
+==
+
+Oto-Manguean (97): oto-x-mazahua, csa, vmy, tcf, cut, cle, cux, xtd, cuc, ztu, xtn, ztq, zty, omq-x-chatino, mxv, mxt, mpm, amu, pbs, trc, trq, zca, mdv, cnt, zpl, cnl, pls, mxb, ctp, cta, zao, zam, zai, zad, zae, zab, zac, zaa, pps, zav, zaw, zat, poe, zar, zas, zap, zaq, zpz, zpq, chj, zpu, zpt, zpv, zpi, chq, mks, omq-x-mixtec, zpo, zpa, zpm, chz, zpf, otm, otn, oto, omq-x-amuzgo, ote, cya, otq, ots, zpc, zsr, azg, omq-x-mazatec, mih, cso, mim, mil, mio, mib, mie, mig, miz, miu, mit, maq, mau, maz, maa, mza, maj, mzi, mjc, cpa, tpl, cco, mbz
+  Zapotecan (36): zao, zam, zca, zai, zad, zae, zab, zac, zaa, zav, zaw, zat, zar, zas, zap, zaq, zpz, zpq, zpu, zpt, zpv, zpi, zpm, zpl, zpo, zpa, zty, zpc, ztq, zpf, omq-x-chatino, ztu, cya, ctp, zsr, cta
+  Mixtecan (26): xtd, mdv, mih, cut, mim, mil, mio, mib, mie, mig, cux, miz, mks, omq-x-mixtec, xtn, miu, mit, mxv, mxt, mpm, mza, mxb, mjc, trc, trq, mbz
+  Chinantecan (11): cnt, cle, chj, csa, cso, chq, cco, cuc, cpa, chz, cnl
+  Popolocan (10): maq, pps, omq-x-mazatec, mau, maa, vmy, poe, pls, maj, mzi
+  Otopamean (9): oto-x-mazahua, otm, otn, oto, maz, ote, otq, ots, pbs
+  Amuzgoan (3): omq-x-amuzgo, amu, azg
+  Subtiaba-Tlapanecan (2): tcf, tpl
+
+==
+
+Mayan (50): tzs, tzu, tzt, hva, tzz, cbm, tzc, tze, poh, tzh, ttc, kek, tzj, pob, tzo, tzj-x-eastern, ixi, ixl, kjb, toj, usp, cnm, jac, cke, hsf, qut, mop, mms, lac, yua, quc, hus, hus-x-veracruz, quj, mam, caa, acc, ctu, knj, chf, mvj, cki, ckk, cak, acr, ckw, mvc, cac, agu, cti
+
+Afro-Asiatic (42): aa, ti-Latn, ar-Latn-x-chat, mpg, mfh, mfi, maf, mqb, gde, kbr, tzm, dwr, kqp, swn, gof, hae, mif, irk, sur, dsh, am-Latn, tmh, gmv, kab, daa, he-Latn, sid, wal, meq, hig, ha, shi-Latn, hna, om, aeb-Latn, ary-Latn, mt, so, gnd, rif-Latn, bcw, pbi
+
+Aztec-Tanoan (36): nhe, nhg, nuz, azc-x-tepehuan, tar, ood, nhm, nhn, nhi, ppl, nhw, nhs, tac, mfy, nhy, nhx, crn-x-presidio, nah, yaq, nsu, ngu, hop, var, hch, pao, npl, ntp, nch, ncj, ncl, azz, stp, shh, cok, crn, tew
+  Uto-Aztecan (35): nhe, nhg, nuz, azc-x-tepehuan, tar, ood, nhm, nhn, nhi, ppl, nhw, nhs, tac, mfy, nhy, nhx, crn-x-presidio, nah, yaq, nsu, ngu, hop, var, hch, pao, npl, ntp, nch, ncj, ncl, azz, stp, shh, cok, crn
+  Kiowa Tanoan (1): tew
+
+Nilo-Saharan (35): spy, teo, avu, mhi, nus, son, bjv, alz, mfz, kyq, bfa, mur, udu, pko, ddn, lot, adh, lwo, mas, mgd, enb, lgg, sba, sgc, tcc, din, shk, dik, kln, ach, knc, kr, bex, luo, dip
+
+Sino-Tibetan (35): cfm, tcz, ahk, hlt, njo, czt, zom, raw, czo, bgr, grt, lus, nan, dln, bo-Latn, mrh, vap, cnk, cnh, kac, cdo, mwq, zh-Latn, nmf, hak, bft-Latn, hni, acn, ctd, lhu, mjw, cmn-Latn, mhx, trp, nzm
+
+Quechumaran (32): qvm, qvn, qvo, qvh, qve, qva, qvc, qvz, qvw, inb, qvs, qup, quw, qwh, quy, quz, qub, qud, qug, quf, quh, qul, qu-x-ancash, qxa, qu, qxh, qxn, qxo, qxr, qxw, qxu, ay
+  Quechuan (31): qvm, qvn, qvo, qvh, qve, qva, qvc, qvz, qvw, inb, qvs, qup, quw, qwh, quy, quz, qub, qud, qug, quf, quh, qul, qu-x-ancash, qxa, qu, qxh, qxn, qxo, qxr, qxw, qxu
+  Aymaran (1): ay
+
+???
+Creole/Pidgin/Mixed (34): bzj, mfe, pov, cbk, tcs, sg, rop, pis, pap, jam, pcm, icr, djk, lou, hwc, ht, bi, kea, rcf, crs, acf, ktu, srn, tpi, gul, kri, cri, pap-CW, bew, srm, gcf, pih; ho, chn, crg
+
+==
+
+Almosan (41): coo-x-sli, lil-x-mou, lil-x-fou, str, lil, hur-x-upr, squ, thp, oka, coo-x-kla, shs, sec, blc, hur, hur-x-cow, coo, lut, arp, wam, cr-Latn, abe, mia, crk-Latn, mic, unm, del, csw-Latn, pim, chy, bla, pot, moe, oj, noo, kwk, noo-x-she, noo-x-barkley, noo-x-nitinaht, noo-x-eha-nuc, has, kut
+  Salishan (17): coo-x-sli, lil-x-mou, lil-x-fou, str, lil, hur-x-upr, squ, thp, oka, coo-x-kla, shs, sec, blc, hur, hur-x-cow, coo, lut
+  Algic (16): arp, wam, cr-Latn, abe, mia, crk-Latn, mic, unm, del, csw-Latn, pim, chy, bla, pot, moe, oj
+  Wakashan (7): noo, kwk, noo-x-she, noo-x-barkley, noo-x-nitinaht, noo-x-eha-nuc, has
+  Kutenai (1): kut
+
+Macro-Arawakan (27): guc, wap, cot, pio, cjo, cpb, cpc, ame, mcb, pib, apu, pab, prq, ycn, ign, not, cab, ter, trn, cpu, cni, cul, pad, amr, guh, guo, cui
+  Arawakan (21): guc, wap, cot, pio, cjo, cpb, cpc, ame, mcb, pib, apu, pab, prq, ycn, ign, not, cab, ter, trn, cpu, cni
+  Guahiban (3): guh, guo, cui
+  Arauan (2): cul, pad
+  Harakmbet (1): amr
+
+Je-Tupi-Carib (33): gub, yrl, gnw, urb, mav, tpn, gui, myu, gun, kyz, srq, gyr, pah, gn, kgk, mbl, kgp, cax, cax-x-ilv, ram, xav, apn, rkb, kpj, txu, apy, way, hix, car, mbc, bkq, pbc, ake
+  Tupi (15): gub, yrl, gnw, urb, mav, tpn, gui, myu, gun, kyz, srq, gyr, pah, gn, kgk
+  Macro-Ge (10): mbl, kgp, cax, cax-x-ilv, ram, xav, apn, rkb, kpj, txu
+  Carib (8): apy, way, hix, car, mbc, bkq, pbc, ake
+
+Uralo-Siberian (23): ekk, vep, fit, smn, izh, sms, hu, vot, smj, liv, se, krl, fi, et, vro, fkv, sma, esu, kl, ik, iu-Latn, esk, esi
+  Uralic (17): ekk, vep, fit, smn, izh, sms, hu, vot, smj, liv, se, krl, fi, et, vro, fkv, sma
+  Eskimo-Aleut (6): esu, kl, ik, iu-Latn, esk, esi
+
+Macro-Chibchan (22): kvn, mbp, gym, kog, bzd, sab, cjp, tfr, cuk, tuf, con, miq, sum, kwi, cbi, gum, cof, cto, sja, emp, noa, pbb
+  Chibchan (11): kvn, mbp, gym, kog, bzd, sab, cjp, tfr, cuk, tuf, con
+  Barbacoan (4): kwi, cbi, gum, cof
+  Choco (4): cto, sja, emp, noa
+  Misumalpan (2): miq, sum
+  Paezan (1): pbb
+
+Na-Dene (20): hai, tce, tli, kkz, haa, crx, gwi, apw, clc, chp, nv, den, apm, scs, hdn, tgx, apa, sek, caf, bcr
+
+Altaic (18): uzn-Latn, azj, jct-Latn, ky-Latn, tr, kaa, slr, ili, mnc, uz-Latn, kk-Latn, tk, mn-Latn, gag, crh, az, kdr, ug-Latn
+
+"Australian" (17): kld, bvr, djr, wbp, bcj, mpj, wim, tiw, ibd, wrh, wmt, jao, gup, aer, pjt, piu, mwp
+
+Tucanoan (17): myy, cbc, tav, sri, tuo-BR, snn, gvc, des, sey, bsn, coe, cub, tuo, bao, pir, ore, tuo-CO
+
+Totozoquean (15): mco, mxp, mxq, cai-x-mixe, zos, mto, poi, mir, tos, top, tee, tot, tpt, too, toc
+  Mixe-Zoque (8): mco, mxp, mxq, cai-x-mixe, zos, mto, poi, mir
+  Totonacan (7): tos, top, tee, tot, tpt, too, toc
+
+Macro-Panoan (15): shp, mcf, amc, mcd, cbr, cbs, kaq, cao, yaa, ese, tna, cav, aro, cas, yuz
+  Panoan (9): shp, mcf, amc, mcd, cbr, cbs, kaq, cao, yaa
+  Tacanan (4): ese, tna, cav, aro
+  Mosetenan (1): cas
+  Yuracare (1): yuz
+
+Macro-Andean (15): jiv, hub, agr, acu, bmr, boa, hto, huu, cbt, ura, auc, yad, cbu, zro, arl
+  Jivaroan (4): jiv, hub, agr, acu
+  Witotoan (4): bmr, boa, hto, huu
+  Zaparoan (2): zro, arl
+  Cahuapanan (1): cbt
+  Urarina (1): ura
+  Sabela (1): auc
+  Peba-Yaguan (1): yad
+  Candoshi* (1): cbu
+
+Mainland Southeast Asia linguistic area (14): srb, vi, bru, bdq, cua, kha, sat, hmn, hnj, mww, hea, hms, zyj, za
+  Austro-Asiatic (7): srb, vi, bru, bdq, cua, kha, sat
+  Hmong-Mien (5): hmn, hnj, mww, hea, hms
+  Tai-Kadai (2): zyj, za
+
+Macro-Siouan (11): tta, lkt, sio-x-dakota, oma, dak, cay, moh, wya, paw, yuc
+  Siouan (5): tta, lkt, sio-x-dakota, oma, dak
+  Iroquoian (4): cay, moh, wya, chr-Latn
+  Caddoan (1): paw
+  Yuchi* (1): yuc
+
+
+===
+
+Pueblo linguistic area?
+  Zuni (1): zun
+  Tanoan...
+
+Papuan non-TNG (26): xbi-x-wamp, avt, aon, aoj, ong, kms, aoj-x-filifita, xbi-x-yani, ape, byx, sua, roo, ata, nas, kto, yle, tby, tlb, loa, gbi, mtj, mej, kwj, amm, bvz, yuj
+  Torricelli (9): xbi-x-wamp, avt, aon, aoj, ong, kms, aoj-x-filifita, xbi-x-yani, ape
+  East Papuan (7): byx, sua, roo, ata, nas, kto, yle
+  West Papuan (4): tby, tlb, loa, gbi
+  East Bird's Head (2): mtj, mej
+  Sepik (1): kwj
+  Left May (1): amm
+  Geelvink Bay (1): bvz
+  Karkar-Yuri (1): yuj
+
+
+Hokan and Jicaquean (4): kyh, chd, sei; jic
+Penutian (3): git, nez, ncg
+
+Muskogean (5): cic, akz, mik, mus, cho
+Dravidian (4): kn-Latn, bfq-Latn, aaf, brh-Latn
+South Caucasian (2): lzz, ka-Latn
+Maku (2): cbv, mbj
+Yanomam (2): wca, guu
+Mataco-Guaicuru (2): tob, kbc
+Huavean (2): huv, nai-x-huave
+Khoisan (1): naq
+Nambiquaran (1): nab
+Uru-Chipaya (1): cap
+Japanese (1): ja-Latn
+Tarascan (1): tsz
+Zamucoan (1): ceg
+Araucanian (1): arn
+Basque (1): eu
+Ainu (1): ain
+Camsa (1): kbh
+Burushaski (1): bsk-Latn
+Ticuna (1): tca
+
+==
+
+Artificial (9): dws, eo, vo, jbo, art-x-tokipona, io, ia, nov, ie
